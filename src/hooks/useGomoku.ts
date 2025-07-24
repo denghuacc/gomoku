@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
-const BOARD_SIZE = 15;
+const BOARD_SIZE = 16;
 
 // 类型定义
 export type Player = 1 | 2; // 1: 黑棋, 2: 白棋

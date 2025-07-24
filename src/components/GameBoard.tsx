@@ -27,17 +27,36 @@ const GameBoard: React.FC<GameBoardProps> = ({
   const [previewPosition, setPreviewPosition] =
     useState<PreviewPosition | null>(null);
 
-  // 计算Canvas尺寸
+  // 生成坐标标签 - 对应15根线
+  const generateColumnLabels = (): string[] => {
+    return Array.from(
+      { length: BOARD_SIZE },
+      (_, i) => String.fromCharCode(65 + i) // A, B, C, ..., O (15个字母)
+    );
+  };
+
+  const generateRowLabels = (): string[] => {
+    return Array.from(
+      { length: BOARD_SIZE },
+      (_, i) => (i + 1).toString() // 1, 2, 3, ..., 15 (15个数字)
+    );
+  };
+
+  // 计算Canvas尺寸 - 调整为原来的尺寸以保持布局
   const getCellSize = (): number => {
     const containerSize = Math.min(
       window.innerWidth * 0.5,
       window.innerHeight * 0.6
     );
-    return containerSize / BOARD_SIZE;
+    // 调整计算：让最终Canvas尺寸和之前15x14的尺寸相当
+    return containerSize / (BOARD_SIZE + 1); // 除以16而不是15，让棋盘稍微小一点
   };
 
   const CELL_SIZE = getCellSize();
-  const PIECE_SIZE = CELL_SIZE * 0.8;
+  const PIECE_SIZE = CELL_SIZE * 0.85; // 稍微增大棋子相对尺寸，从0.8改为0.85
+  // Canvas实际尺寸：需要为边缘棋子预留空间
+  const CANVAS_SIZE = CELL_SIZE * BOARD_SIZE;
+  const GRID_OFFSET = CELL_SIZE / 2; // 网格起始偏移
 
   // 绘制棋盘
   const drawBoard = (
@@ -49,21 +68,24 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 绘制网格线
+    // 绘制网格线 - 绘制16根线（包括边界）
     ctx.strokeStyle = "#8B4513";
     ctx.lineWidth = 1.5;
 
-    for (let i = 0; i < BOARD_SIZE; i++) {
+    // 绘制16根线（0到15，总共16根）
+    for (let i = 0; i <= BOARD_SIZE; i++) {
+      const pos = GRID_OFFSET + i * CELL_SIZE;
+
       // 水平线
       ctx.beginPath();
-      ctx.moveTo(0, i * CELL_SIZE);
-      ctx.lineTo(canvas.width, i * CELL_SIZE);
+      ctx.moveTo(GRID_OFFSET, pos);
+      ctx.lineTo(canvas.width - GRID_OFFSET, pos);
       ctx.stroke();
 
       // 垂直线
       ctx.beginPath();
-      ctx.moveTo(i * CELL_SIZE, 0);
-      ctx.lineTo(i * CELL_SIZE, canvas.height);
+      ctx.moveTo(pos, GRID_OFFSET);
+      ctx.lineTo(pos, canvas.height - GRID_OFFSET);
       ctx.stroke();
     }
 
@@ -78,7 +100,13 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
     starPoints.forEach((point) => {
       ctx.beginPath();
-      ctx.arc(point.x * CELL_SIZE, point.y * CELL_SIZE, 4, 0, Math.PI * 2);
+      ctx.arc(
+        GRID_OFFSET + point.x * CELL_SIZE,
+        GRID_OFFSET + point.y * CELL_SIZE,
+        4,
+        0,
+        Math.PI * 2
+      );
       ctx.fillStyle = "#8B4513";
       ctx.fill();
     });
@@ -102,8 +130,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
       if (gameBoard[row][col] === 0) {
         ctx.beginPath();
         ctx.arc(
-          col * CELL_SIZE,
-          row * CELL_SIZE,
+          GRID_OFFSET + col * CELL_SIZE,
+          GRID_OFFSET + row * CELL_SIZE,
           PIECE_SIZE / 2,
           0,
           Math.PI * 2
@@ -127,8 +155,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
     col: number,
     player: Player
   ): void => {
-    const x = col * CELL_SIZE;
-    const y = row * CELL_SIZE;
+    const x = GRID_OFFSET + col * CELL_SIZE;
+    const y = GRID_OFFSET + row * CELL_SIZE;
 
     ctx.beginPath();
     ctx.arc(x, y, PIECE_SIZE / 2 + 4, 0, Math.PI * 2);
@@ -144,8 +172,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
     col: number,
     player: Player
   ): void => {
-    const x = col * CELL_SIZE;
-    const y = row * CELL_SIZE;
+    const x = GRID_OFFSET + col * CELL_SIZE;
+    const y = GRID_OFFSET + row * CELL_SIZE;
 
     // 棋子阴影
     ctx.beginPath();
@@ -207,8 +235,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
     const x = (e.clientX - rect.left) * scaleX;
     const y = (e.clientY - rect.top) * scaleY;
 
-    const col = Math.round(x / CELL_SIZE);
-    const row = Math.round(y / CELL_SIZE);
+    // 调整点击检测：考虑网格偏移
+    const col = Math.round((x - GRID_OFFSET) / CELL_SIZE);
+    const row = Math.round((y - GRID_OFFSET) / CELL_SIZE);
 
     if (row >= 0 && row < BOARD_SIZE && col >= 0 && col < BOARD_SIZE) {
       onMove(row, col);
@@ -229,8 +258,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
     const x = (e.clientX - rect.left) * scaleX;
     const y = (e.clientY - rect.top) * scaleY;
 
-    const col = Math.round(x / CELL_SIZE);
-    const row = Math.round(y / CELL_SIZE);
+    // 调整鼠标移动检测：考虑网格偏移
+    const col = Math.round((x - GRID_OFFSET) / CELL_SIZE);
+    const row = Math.round((y - GRID_OFFSET) / CELL_SIZE);
 
     if (row >= 0 && row < BOARD_SIZE && col >= 0 && col < BOARD_SIZE) {
       setPreviewPosition({ row, col });
@@ -255,31 +285,109 @@ const GameBoard: React.FC<GameBoardProps> = ({
     drawBoard(ctx, true);
   }, [gameBoard, previewPosition, currentPlayer, gameActive]);
 
-  // 设置Canvas尺寸
+  // 设置Canvas尺寸 - 修正为完整尺寸
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    canvas.width = CELL_SIZE * (BOARD_SIZE - 1);
-    canvas.height = CELL_SIZE * (BOARD_SIZE - 1);
-  }, [CELL_SIZE, BOARD_SIZE]);
+    canvas.width = CANVAS_SIZE;
+    canvas.height = CANVAS_SIZE;
+  }, [CANVAS_SIZE]);
+
+  const columnLabels = generateColumnLabels();
+  const rowLabels = generateRowLabels();
 
   return (
-    <div
-      className="aspect-square bg-board rounded-lg shadow-lg overflow-hidden board-grid"
-      style={{
-        backgroundSize: `calc(100% / ${BOARD_SIZE - 1}) calc(100% / ${
-          BOARD_SIZE - 1
-        })`,
-      }}
-    >
-      <canvas
-        ref={canvasRef}
-        className="w-full h-full cursor-pointer"
-        onClick={handleClick}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-      />
+    <div className="flex flex-col items-center">
+      {/* 顶部坐标标签 */}
+      <div className="flex items-center mb-2">
+        <div className="w-8"></div> {/* 左上角空白 */}
+        <div className="flex" style={{ width: CANVAS_SIZE }}>
+          {columnLabels.map((label, index) => (
+            <div
+              key={label}
+              className="flex items-center justify-center text-sm font-medium text-gray-600"
+              style={{
+                width: CELL_SIZE,
+              }}
+            >
+              {label}
+            </div>
+          ))}
+        </div>
+        <div className="w-8"></div> {/* 右上角空白 */}
+      </div>
+
+      {/* 棋盘主体区域 */}
+      <div className="flex items-center">
+        {/* 左侧坐标标签 */}
+        <div className="flex flex-col mr-2" style={{ height: CANVAS_SIZE }}>
+          {rowLabels.map((label, index) => (
+            <div
+              key={label}
+              className="flex items-center justify-center text-sm font-medium text-gray-600"
+              style={{
+                height: CELL_SIZE,
+                width: "2rem",
+              }}
+            >
+              {label}
+            </div>
+          ))}
+        </div>
+
+        {/* 棋盘Canvas */}
+        <div
+          className="bg-board rounded-lg shadow-lg overflow-hidden"
+          style={{
+            width: CANVAS_SIZE,
+            height: CANVAS_SIZE,
+          }}
+        >
+          <canvas
+            ref={canvasRef}
+            className="w-full h-full cursor-pointer"
+            onClick={handleClick}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+          />
+        </div>
+
+        {/* 右侧坐标标签 */}
+        <div className="flex flex-col ml-2" style={{ height: CANVAS_SIZE }}>
+          {rowLabels.map((label, index) => (
+            <div
+              key={`right-${label}`}
+              className="flex items-center justify-center text-sm font-medium text-gray-600"
+              style={{
+                height: CELL_SIZE,
+                width: "2rem",
+              }}
+            >
+              {label}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 底部坐标标签 */}
+      <div className="flex items-center mt-2">
+        <div className="w-8"></div> {/* 左下角空白 */}
+        <div className="flex" style={{ width: CANVAS_SIZE }}>
+          {columnLabels.map((label, index) => (
+            <div
+              key={`bottom-${label}`}
+              className="flex items-center justify-center text-sm font-medium text-gray-600"
+              style={{
+                width: CELL_SIZE,
+              }}
+            >
+              {label}
+            </div>
+          ))}
+        </div>
+        <div className="w-8"></div> {/* 右下角空白 */}
+      </div>
     </div>
   );
 };

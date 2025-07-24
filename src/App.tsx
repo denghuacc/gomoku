@@ -22,7 +22,10 @@ function App(): JSX.Element {
 
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4 font-sans">
-      <div className="max-w-4xl w-full bg-white rounded-2xl shadow-xl overflow-hidden">
+      <div
+        className="w-full bg-white rounded-2xl shadow-xl overflow-hidden"
+        style={{ maxWidth: "1000px" }}
+      >
         {/* 头部 */}
         <div className="bg-primary text-white p-6 text-center">
           <h1 className="text-[clamp(1.5rem,3vw,2.5rem)] font-bold">五子棋</h1>
