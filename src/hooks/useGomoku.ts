@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useAudioSystem } from "./useAudioSystem";
 
 const BOARD_SIZE = 16;
 
@@ -25,6 +26,11 @@ export interface UseGomokuReturn {
   undoMove: () => void;
   resetGame: () => void;
   BOARD_SIZE: number;
+  // 音效相关
+  audioEnabled: boolean;
+  volume: number;
+  toggleAudio: () => void;
+  setVolume: (volume: number) => void;
 }
 
 export const useGomoku = (): UseGomokuReturn => {
@@ -40,6 +46,16 @@ export const useGomoku = (): UseGomokuReturn => {
   const [winner, setWinner] = useState<Player | null>(null);
   const [lastMove, setLastMove] = useState<Move | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // 音效系统
+  const {
+    audioEnabled,
+    volume,
+    toggleAudio,
+    setVolume,
+    playMoveSound,
+    playWinSound,
+  } = useAudioSystem();
 
   // 开始计时
   const startTimer = useCallback(() => {
@@ -151,11 +167,16 @@ export const useGomoku = (): UseGomokuReturn => {
       setMoveHistory((prev) => [...prev, newMove]);
       setLastMove(newMove);
 
+      // 播放落子音效
+      playMoveSound();
+
       // 检查是否胜利
       if (checkWin(newBoard, row, col, currentPlayer)) {
         setWinner(currentPlayer);
         setGameActive(false);
         stopTimer();
+        // 播放胜利音效
+        playWinSound();
         return true;
       }
 
@@ -231,5 +252,10 @@ export const useGomoku = (): UseGomokuReturn => {
     undoMove,
     resetGame,
     BOARD_SIZE,
+    // 音效相关
+    audioEnabled,
+    volume,
+    toggleAudio,
+    setVolume,
   };
 };

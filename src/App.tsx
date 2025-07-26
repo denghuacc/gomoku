@@ -18,6 +18,10 @@ function App(): JSX.Element {
     undoMove,
     resetGame,
     BOARD_SIZE,
+    audioEnabled,
+    volume,
+    toggleAudio,
+    setVolume,
   } = useGomoku();
 
   return (
@@ -57,6 +61,10 @@ function App(): JSX.Element {
               currentPlayer={currentPlayer}
               gameTime={gameTime}
               moveCount={moveHistory.length}
+              audioEnabled={audioEnabled}
+              volume={volume}
+              toggleAudio={toggleAudio}
+              setVolume={setVolume}
             />
 
             <GameRules />
