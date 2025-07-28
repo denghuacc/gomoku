@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useAudioSystem } from "./useAudioSystem";
+import { useGameTimer } from "./useGameTimer";
 import { type GameConfig } from "./useGameConfig";
 
 // 类型定义
@@ -32,6 +33,15 @@ export interface UseGomokuReturn {
   setVolume: (volume: number) => void;
   // 配置相关
   applyConfig: (config: GameConfig) => void;
+  // 计时器相关
+  timerState: any;
+  timerConfig: any;
+  updateTimerConfig: (config: any) => void;
+  pauseTimer: () => void;
+  resumeTimer: () => void;
+  resetTimer: () => void;
+  formatTime: (seconds: number) => string;
+  isTimeUp: (player: Player) => boolean;
 }
 
 export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
@@ -70,6 +80,20 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
     playMoveSound,
     playWinSound,
   } = useAudioSystem();
+
+  // 计时器系统
+  const {
+    timerState,
+    config: timerConfig,
+    updateConfig: updateTimerConfig,
+    startTimer: startGameTimer,
+    pauseTimer,
+    resumeTimer,
+    switchPlayer: switchTimerPlayer,
+    resetTimer: resetGameTimer,
+    isTimeUp,
+    formatTime,
+  } = useGameTimer();
 
   // 开始计时
   const startTimer = useCallback(() => {
@@ -184,6 +208,15 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
       // 播放落子音效
       playMoveSound();
 
+      // 检查是否超时
+      if (isTimeUp(currentPlayer)) {
+        setWinner(currentPlayer === 1 ? 2 : 1); // 对手获胜
+        setGameActive(false);
+        stopTimer();
+        playWinSound();
+        return true;
+      }
+
       // 检查是否胜利
       if (checkWin(newBoard, row, col, currentPlayer)) {
         setWinner(currentPlayer);
@@ -202,7 +235,9 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
       }
 
       // 切换玩家
-      setCurrentPlayer((prev) => (prev === 1 ? 2 : 1));
+      const nextPlayer = currentPlayer === 1 ? 2 : 1;
+      setCurrentPlayer(nextPlayer);
+      switchTimerPlayer(nextPlayer);
       return true;
     },
     [gameBoard, currentPlayer, gameActive, checkWin, checkDraw, stopTimer]
@@ -231,6 +266,8 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
       // 重启计时器
       stopTimer();
       startTimer();
+      resetGameTimer();
+      startGameTimer(config.firstPlayer);
     },
     [startTimer, stopTimer]
   );
@@ -278,8 +315,9 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
   // 初始化游戏
   useEffect(() => {
     startTimer();
+    startGameTimer(initialConfig?.firstPlayer || 1);
     return () => stopTimer();
-  }, [startTimer, stopTimer]);
+  }, [startTimer, stopTimer, startGameTimer, initialConfig?.firstPlayer]);
 
   return {
     gameBoard,
@@ -300,5 +338,14 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
     setVolume,
     // 配置相关
     applyConfig,
+    // 计时器相关
+    timerState,
+    timerConfig,
+    updateTimerConfig,
+    pauseTimer,
+    resumeTimer,
+    resetTimer: resetGameTimer,
+    formatTime,
+    isTimeUp,
   };
 };

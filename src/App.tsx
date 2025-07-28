@@ -1,11 +1,11 @@
 import { useGomoku } from "./hooks/useGomoku";
 import { useGameConfig } from "./hooks/useGameConfig";
+import { useGameTimer } from "./hooks/useGameTimer";
 import GameBoard from "./components/GameBoard";
-import GameInfo from "./components/GameInfo";
-import GameRules from "./components/GameRules";
 import GameStatus from "./components/GameStatus";
-import GameConfig from "./components/GameConfig";
+import GameTabs from "./components/GameTabs";
 import WinModal from "./components/WinModal";
+import { useEffect } from "react";
 
 function App(): JSX.Element {
   // 游戏配置
@@ -36,6 +36,26 @@ function App(): JSX.Element {
     setVolume,
     applyConfig,
   } = useGomoku(config);
+
+  // 计时器系统
+  const {
+    timerState,
+    config: timerConfig,
+    updateConfig: updateTimerConfig,
+    pauseTimer,
+    resumeTimer,
+    switchPlayer: switchTimerPlayer,
+    resetTimer: resetGameTimer,
+    isTimeUp,
+    formatTime,
+  } = useGameTimer();
+
+  // 同步计时器玩家切换
+  useEffect(() => {
+    if (gameActive) {
+      switchTimerPlayer(currentPlayer);
+    }
+  }, [currentPlayer, gameActive, switchTimerPlayer]);
 
   // 应用配置并重新开始游戏
   const handleApplyConfig = () => {
@@ -75,7 +95,8 @@ function App(): JSX.Element {
 
           {/* 游戏控制和信息 */}
           <div className="w-full md:w-80 flex flex-col gap-6">
-            <GameInfo
+            <GameTabs
+              // GameInfo props
               currentPlayer={currentPlayer}
               gameTime={gameTime}
               moveCount={moveHistory.length}
@@ -83,9 +104,17 @@ function App(): JSX.Element {
               volume={volume}
               toggleAudio={toggleAudio}
               setVolume={setVolume}
-            />
-
-            <GameConfig
+              // GameTimer props
+              timerState={timerState}
+              timerConfig={timerConfig}
+              gameActive={gameActive}
+              updateTimerConfig={updateTimerConfig}
+              pauseTimer={pauseTimer}
+              resumeTimer={resumeTimer}
+              resetTimer={resetGameTimer}
+              formatTime={formatTime}
+              isTimeUp={isTimeUp}
+              // GameConfig props
               config={config}
               setBoardSize={setBoardSize}
               setWinCondition={setWinCondition}
@@ -94,8 +123,6 @@ function App(): JSX.Element {
               resetConfig={resetConfig}
               onApplyConfig={handleApplyConfig}
             />
-
-            <GameRules />
 
             <div className="flex gap-3">
               <button
