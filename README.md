@@ -201,7 +201,7 @@ Core game logic implemented in `useGomoku.ts`:
 
 ## 📝 Changelog
 
-### v1.0.0 (2025-01-27)
+### v1.0.0 (2025-07-27)
 
 - ✨ Complete refactoring from JavaScript to TypeScript
 - 🔒 Added complete type definitions and type safety

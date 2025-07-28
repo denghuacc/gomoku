@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useAudioSystem } from "./useAudioSystem";
-
-const BOARD_SIZE = 16;
+import { type GameConfig } from "./useGameConfig";
 
 // 类型定义
 export type Player = 1 | 2; // 1: 黑棋, 2: 白棋
@@ -31,15 +30,30 @@ export interface UseGomokuReturn {
   volume: number;
   toggleAudio: () => void;
   setVolume: (volume: number) => void;
+  // 配置相关
+  applyConfig: (config: GameConfig) => void;
 }
 
-export const useGomoku = (): UseGomokuReturn => {
+export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
+  // 游戏配置
+  const [BOARD_SIZE, setBoardSize] = useState<number>(
+    initialConfig?.boardSize || 15
+  );
+  const [winCondition, setWinCondition] = useState<number>(
+    initialConfig?.winCondition || 5
+  );
+  const [allowUndo, setAllowUndo] = useState<boolean>(
+    initialConfig?.allowUndo ?? true
+  );
+
   const [gameBoard, setGameBoard] = useState<GameBoard>(() =>
     Array(BOARD_SIZE)
       .fill(null)
       .map(() => Array(BOARD_SIZE).fill(0))
   );
-  const [currentPlayer, setCurrentPlayer] = useState<Player>(1); // 1: 黑棋, 2: 白棋
+  const [currentPlayer, setCurrentPlayer] = useState<Player>(
+    initialConfig?.firstPlayer || 1
+  );
   const [gameActive, setGameActive] = useState<boolean>(true);
   const [moveHistory, setMoveHistory] = useState<Move[]>([]);
   const [gameTime, setGameTime] = useState<number>(0);
@@ -89,7 +103,7 @@ export const useGomoku = (): UseGomokuReturn => {
         let count = 1; // 当前位置已经有一个棋子
 
         // 正向检查
-        for (let i = 1; i < 5; i++) {
+        for (let i = 1; i < BOARD_SIZE; i++) {
           const newRow = row + i * dy;
           const newCol = col + i * dx;
 
@@ -110,7 +124,7 @@ export const useGomoku = (): UseGomokuReturn => {
         }
 
         // 反向检查
-        for (let i = 1; i < 5; i++) {
+        for (let i = 1; i < BOARD_SIZE; i++) {
           const newRow = row - i * dy;
           const newCol = col - i * dx;
 
@@ -130,14 +144,14 @@ export const useGomoku = (): UseGomokuReturn => {
           }
         }
 
-        if (count >= 5) {
+        if (count >= winCondition) {
           return true;
         }
       }
 
       return false;
     },
-    []
+    [winCondition, BOARD_SIZE]
   );
 
   // 检查平局
@@ -194,9 +208,36 @@ export const useGomoku = (): UseGomokuReturn => {
     [gameBoard, currentPlayer, gameActive, checkWin, checkDraw, stopTimer]
   );
 
+  // 应用配置
+  const applyConfig = useCallback(
+    (config: GameConfig) => {
+      setBoardSize(config.boardSize);
+      setWinCondition(config.winCondition);
+      setAllowUndo(config.allowUndo);
+      setCurrentPlayer(config.firstPlayer);
+
+      // 重新创建棋盘
+      setGameBoard(
+        Array(config.boardSize)
+          .fill(null)
+          .map(() => Array(config.boardSize).fill(0))
+      );
+      setGameActive(true);
+      setMoveHistory([]);
+      setGameTime(0);
+      setWinner(null);
+      setLastMove(null);
+
+      // 重启计时器
+      stopTimer();
+      startTimer();
+    },
+    [startTimer, stopTimer]
+  );
+
   // 悔棋
   const undoMove = useCallback(() => {
-    if (moveHistory.length === 0 || !gameActive) {
+    if (moveHistory.length === 0 || !gameActive || !allowUndo) {
       return;
     }
 
@@ -223,7 +264,7 @@ export const useGomoku = (): UseGomokuReturn => {
         .fill(null)
         .map(() => Array(BOARD_SIZE).fill(0))
     );
-    setCurrentPlayer(1);
+    setCurrentPlayer(initialConfig?.firstPlayer || 1);
     setGameActive(true);
     setMoveHistory([]);
     setGameTime(0);
@@ -232,7 +273,7 @@ export const useGomoku = (): UseGomokuReturn => {
 
     stopTimer();
     startTimer();
-  }, [startTimer, stopTimer]);
+  }, [BOARD_SIZE, initialConfig?.firstPlayer, startTimer, stopTimer]);
 
   // 初始化游戏
   useEffect(() => {
@@ -257,5 +298,7 @@ export const useGomoku = (): UseGomokuReturn => {
     volume,
     toggleAudio,
     setVolume,
+    // 配置相关
+    applyConfig,
   };
 };

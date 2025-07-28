@@ -68,11 +68,11 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 绘制网格线 - 绘制16根线（包括边界）
+    // 绘制网格线 - 绘制 BOARD_SIZE+1 根线（包括边界）
     ctx.strokeStyle = "#8B4513";
     ctx.lineWidth = 1.5;
 
-    // 绘制16根线（0到15，总共16根）
+    // 绘制 BOARD_SIZE+1 根线（0到BOARD_SIZE，总共BOARD_SIZE+1根）
     for (let i = 0; i <= BOARD_SIZE; i++) {
       const pos = GRID_OFFSET + i * CELL_SIZE;
 
@@ -89,14 +89,38 @@ const GameBoard: React.FC<GameBoardProps> = ({
       ctx.stroke();
     }
 
-    // 绘制天元和星位
-    const starPoints = [
-      { x: 3, y: 3 },
-      { x: 3, y: 11 },
-      { x: 7, y: 7 },
-      { x: 11, y: 3 },
-      { x: 11, y: 11 },
-    ];
+    // 绘制天元和星位（根据棋盘大小动态调整）
+    let starPoints: { x: number; y: number }[] = [];
+
+    if (BOARD_SIZE === 13) {
+      starPoints = [
+        { x: 3, y: 3 },
+        { x: 3, y: 9 },
+        { x: 6, y: 6 },
+        { x: 9, y: 3 },
+        { x: 9, y: 9 },
+      ];
+    } else if (BOARD_SIZE === 15) {
+      starPoints = [
+        { x: 3, y: 3 },
+        { x: 3, y: 11 },
+        { x: 7, y: 7 },
+        { x: 11, y: 3 },
+        { x: 11, y: 11 },
+      ];
+    } else if (BOARD_SIZE === 19) {
+      starPoints = [
+        { x: 3, y: 3 },
+        { x: 3, y: 9 },
+        { x: 3, y: 15 },
+        { x: 9, y: 3 },
+        { x: 9, y: 9 },
+        { x: 9, y: 15 },
+        { x: 15, y: 3 },
+        { x: 15, y: 9 },
+        { x: 15, y: 15 },
+      ];
+    }
 
     starPoints.forEach((point) => {
       ctx.beginPath();
