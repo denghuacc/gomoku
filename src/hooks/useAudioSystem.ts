@@ -20,6 +20,15 @@ export const useAudioSystem = (): UseAudioSystemReturn => {
     return saved ? JSON.parse(saved) : { enabled: true, volume: 0.3 };
   });
 
+  // 使用ref存储最新的config，避免闭包问题
+  const configRef = useRef(config);
+  configRef.current = config;
+
+  // 调试：监听config变化
+  useEffect(() => {
+    console.log("Audio config updated:", config);
+  }, [config]);
+
   const audioContextRef = useRef<AudioContext | null>(null);
 
   // 初始化音频上下文
@@ -38,7 +47,11 @@ export const useAudioSystem = (): UseAudioSystemReturn => {
 
   // 生成落子音效 - 简短清脆的点击声
   const playMoveSound = useCallback(() => {
-    if (!config.enabled) return;
+    // 使用ref获取最新的config状态，避免闭包问题
+    const currentConfig = configRef.current;
+    if (!currentConfig.enabled) return;
+
+    console.log("Playing move sound with volume:", currentConfig.volume); // 调试日志
 
     try {
       const audioContext = initAudioContext();
@@ -61,10 +74,11 @@ export const useAudioSystem = (): UseAudioSystemReturn => {
         audioContext.currentTime + 0.1
       );
 
-      // 设置音量包络
+      // 设置音量包络 - 使用当前config.volume
+      const currentVolume = currentConfig.volume;
       gainNode.gain.setValueAtTime(0, audioContext.currentTime);
       gainNode.gain.linearRampToValueAtTime(
-        config.volume,
+        currentVolume,
         audioContext.currentTime + 0.01
       );
       gainNode.gain.exponentialRampToValueAtTime(
@@ -78,11 +92,15 @@ export const useAudioSystem = (): UseAudioSystemReturn => {
     } catch (error) {
       console.warn("Failed to play move sound:", error);
     }
-  }, [config.enabled, config.volume, initAudioContext]);
+  }, [initAudioContext]);
 
   // 生成胜利音效 - 胜利的旋律
   const playWinSound = useCallback(() => {
-    if (!config.enabled) return;
+    // 使用ref获取最新的config状态，避免闭包问题
+    const currentConfig = configRef.current;
+    if (!currentConfig.enabled) return;
+
+    console.log("Playing win sound with volume:", currentConfig.volume); // 调试日志
 
     try {
       const audioContext = initAudioContext();
@@ -112,11 +130,11 @@ export const useAudioSystem = (): UseAudioSystemReturn => {
         // 设置音量包络
         gainNode.gain.setValueAtTime(0, startTime);
         gainNode.gain.linearRampToValueAtTime(
-          config.volume * 0.8,
+          currentConfig.volume * 0.8,
           startTime + 0.02
         );
         gainNode.gain.linearRampToValueAtTime(
-          config.volume * 0.8,
+          currentConfig.volume * 0.8,
           endTime - 0.05
         );
         gainNode.gain.exponentialRampToValueAtTime(0.001, endTime);
@@ -143,11 +161,11 @@ export const useAudioSystem = (): UseAudioSystemReturn => {
 
           gainNode.gain.setValueAtTime(0, startTime);
           gainNode.gain.linearRampToValueAtTime(
-            config.volume * 0.6,
+            currentConfig.volume * 0.6,
             startTime + 0.1
           );
           gainNode.gain.linearRampToValueAtTime(
-            config.volume * 0.6,
+            currentConfig.volume * 0.6,
             endTime - 0.3
           );
           gainNode.gain.exponentialRampToValueAtTime(0.001, endTime);
@@ -159,7 +177,7 @@ export const useAudioSystem = (): UseAudioSystemReturn => {
     } catch (error) {
       console.warn("Failed to play win sound:", error);
     }
-  }, [config.enabled, config.volume, initAudioContext]);
+  }, [initAudioContext]);
 
   // 切换音效开关
   const toggleAudio = useCallback(() => {
@@ -168,9 +186,11 @@ export const useAudioSystem = (): UseAudioSystemReturn => {
 
   // 设置音量
   const setVolume = useCallback((volume: number) => {
+    const clampedVolume = Math.max(0, Math.min(1, volume));
+    console.log("Setting volume to:", clampedVolume); // 调试日志
     setConfig((prev) => ({
       ...prev,
-      volume: Math.max(0, Math.min(1, volume)),
+      volume: clampedVolume,
     }));
   }, []);
 

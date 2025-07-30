@@ -84,10 +84,22 @@ const GameInfo: React.FC<GameInfoProps> = ({
                   max="1"
                   step="0.1"
                   value={volume}
-                  onChange={(e) => setVolume(parseFloat(e.target.value))}
-                  className="w-16 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                  onChange={(e) => {
+                    const newVolume = parseFloat(e.target.value);
+                    setVolume(newVolume);
+                    console.log("Volume changed to:", newVolume); // 调试日志
+                  }}
+                  className="w-16 h-1 rounded-lg appearance-none cursor-pointer slider"
+                  style={{
+                    background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${
+                      volume * 100
+                    }%, #E5E7EB ${volume * 100}%, #E5E7EB 100%)`,
+                  }}
                 />
                 <i className="fa-solid fa-volume-up text-gray-400 text-sm"></i>
+                <span className="text-xs text-gray-500 ml-1">
+                  {Math.round(volume * 100)}%
+                </span>
               </div>
             </div>
           )}
