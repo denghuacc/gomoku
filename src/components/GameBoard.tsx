@@ -8,6 +8,9 @@ interface GameBoardProps {
   gameActive: boolean;
   BOARD_SIZE: number;
   lastMove: Move | null;
+  moveHistory: Move[]; // 添加落子历史数组
+  reviewMode: boolean; // 添加回顾模式标志
+  currentReviewMove: number; // 添加当前回顾的步数
 }
 
 interface PreviewPosition {
@@ -22,7 +25,17 @@ const GameBoard: React.FC<GameBoardProps> = ({
   gameActive,
   BOARD_SIZE,
   lastMove,
+  moveHistory,
+  reviewMode,
+  currentReviewMove,
 }) => {
+  // 获取指定位置的落子顺序
+  const getMoveNumber = (row: number, col: number): number | null => {
+    const moveIndex = moveHistory.findIndex(
+      (move) => move.row === row && move.col === col
+    );
+    return moveIndex === -1 ? null : moveIndex + 1;
+  };
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [previewPosition, setPreviewPosition] =
     useState<PreviewPosition | null>(null);
@@ -140,8 +153,16 @@ const GameBoard: React.FC<GameBoardProps> = ({
       for (let j = 0; j < BOARD_SIZE; j++) {
         if (gameBoard[i][j] !== 0) {
           drawPiece(ctx, i, j, gameBoard[i][j] as Player);
-          // 绘制最后落子的高亮效果
-          if (lastMove && lastMove.row === i && lastMove.col === j) {
+          // 绘制最后落子或当前回顾落子的高亮效果
+          if (
+            (!reviewMode &&
+              lastMove &&
+              lastMove.row === i &&
+              lastMove.col === j) || // 普通模式下高亮最后落子
+            (reviewMode &&
+              moveHistory[currentReviewMove - 1]?.row === i &&
+              moveHistory[currentReviewMove - 1]?.col === j) // 回顾模式下高亮当前回顾的落子
+          ) {
             drawHighlight(ctx, i, j, gameBoard[i][j] as Player);
           }
         }
@@ -243,11 +264,23 @@ const GameBoard: React.FC<GameBoardProps> = ({
     ctx.strokeStyle = player === 1 ? "#333" : "#ccc";
     ctx.lineWidth = 1;
     ctx.stroke();
+
+    // 只在回顾模式下绘制落子顺序编号
+    if (reviewMode) {
+      const moveNumber = getMoveNumber(row, col);
+      if (moveNumber !== null) {
+        ctx.font = `${PIECE_SIZE * 0.4}px Arial`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = player === 1 ? "#fff" : "#000";
+        ctx.fillText(moveNumber.toString(), x, y);
+      }
+    }
   };
 
   // 处理点击事件
   const handleClick = (e: React.MouseEvent<HTMLCanvasElement>): void => {
-    if (!gameActive) return;
+    if (!gameActive || reviewMode) return; // 在回顾模式或游戏非活跃状态下禁止落子
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -270,7 +303,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
   // 处理鼠标移动事件
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>): void => {
-    if (!gameActive) return;
+    if (!gameActive || reviewMode) return; // 在回顾模式或游戏非活跃状态下禁止预览
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -307,7 +340,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
     if (!ctx) return;
 
     drawBoard(ctx, true);
-  }, [gameBoard, previewPosition, currentPlayer, gameActive]);
+  }, [gameBoard, previewPosition, currentPlayer, gameActive, reviewMode]);
 
   // 设置Canvas尺寸 - 修正为完整尺寸
   useEffect(() => {
@@ -327,7 +360,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       <div className="flex items-center mb-2">
         <div className="w-8"></div> {/* 左上角空白 */}
         <div className="flex" style={{ width: CANVAS_SIZE }}>
-          {columnLabels.map((label, index) => (
+          {columnLabels.map((label) => (
             <div
               key={label}
               className="flex items-center justify-center text-sm font-medium text-gray-600"
@@ -346,7 +379,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       <div className="flex items-center">
         {/* 左侧坐标标签 */}
         <div className="flex flex-col mr-2" style={{ height: CANVAS_SIZE }}>
-          {rowLabels.map((label, index) => (
+          {rowLabels.map((label) => (
             <div
               key={label}
               className="flex items-center justify-center text-sm font-medium text-gray-600"
@@ -370,7 +403,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
         >
           <canvas
             ref={canvasRef}
-            className="w-full h-full cursor-pointer"
+            className={`w-full h-full ${
+              reviewMode ? "cursor-default" : "cursor-pointer"
+            }`}
             onClick={handleClick}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
@@ -379,7 +414,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
         {/* 右侧坐标标签 */}
         <div className="flex flex-col ml-2" style={{ height: CANVAS_SIZE }}>
-          {rowLabels.map((label, index) => (
+          {rowLabels.map((label) => (
             <div
               key={`right-${label}`}
               className="flex items-center justify-center text-sm font-medium text-gray-600"
@@ -398,7 +433,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       <div className="flex items-center mt-2">
         <div className="w-8"></div> {/* 左下角空白 */}
         <div className="flex" style={{ width: CANVAS_SIZE }}>
-          {columnLabels.map((label, index) => (
+          {columnLabels.map((label) => (
             <div
               key={`bottom-${label}`}
               className="flex items-center justify-center text-sm font-medium text-gray-600"

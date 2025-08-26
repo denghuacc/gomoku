@@ -42,6 +42,13 @@ export interface UseGomokuReturn {
   resetTimer: () => void;
   formatTime: (seconds: number) => string;
   isTimeUp: (player: Player) => boolean;
+  // 回顾功能相关
+  reviewMode: boolean;
+  setReviewMode: (mode: boolean) => void;
+  currentReviewMove: number;
+  setCurrentReviewMove: (move: number) => void;
+  autoPlayInterval: number | null;
+  setAutoPlayInterval: (interval: number | null) => void;
 }
 
 export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
@@ -70,6 +77,15 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
   const [winner, setWinner] = useState<Player | null>(null);
   const [lastMove, setLastMove] = useState<Move | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // 回顾模式相关状态
+  const [reviewMode, setReviewMode] = useState<boolean>(false);
+  const [currentReviewMove, setCurrentReviewMove] = useState<number>(0);
+  const [autoPlayInterval, setAutoPlayInterval] = useState<number | null>(null);
+  const [savedGameBoard, setSavedGameBoard] = useState<GameBoard | null>(null);
+  const [savedCurrentPlayer, setSavedCurrentPlayer] = useState<Player | null>(
+    null
+  );
 
   // 音效系统
   const {
@@ -312,6 +328,53 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
     startTimer();
   }, [BOARD_SIZE, initialConfig?.firstPlayer, startTimer, stopTimer]);
 
+  // 在进入回顾模式时保存当前游戏状态
+  useEffect(() => {
+    if (reviewMode) {
+      setSavedGameBoard(gameBoard.map((row) => [...row]));
+      setSavedCurrentPlayer(currentPlayer);
+      setCurrentReviewMove(moveHistory.length);
+    } else {
+      if (savedGameBoard && savedCurrentPlayer) {
+        setGameBoard(savedGameBoard);
+        setCurrentPlayer(savedCurrentPlayer);
+      }
+      setSavedGameBoard(null);
+      setSavedCurrentPlayer(null);
+      setAutoPlayInterval(null);
+    }
+  }, [reviewMode]);
+
+  // 回顾模式下更新棋盘状态
+  useEffect(() => {
+    if (reviewMode) {
+      const newBoard = Array(BOARD_SIZE)
+        .fill(null)
+        .map(() => Array(BOARD_SIZE).fill(0)) as GameBoard;
+
+      // 重放到当前回合
+      for (let i = 0; i < currentReviewMove && i < moveHistory.length; i++) {
+        const move = moveHistory[i];
+        newBoard[move.row][move.col] = move.player;
+      }
+      setGameBoard(newBoard);
+    }
+  }, [currentReviewMove, reviewMode]);
+
+  // 自动播放功能
+  useEffect(() => {
+    if (autoPlayInterval !== null && reviewMode) {
+      const timer = setInterval(() => {
+        if (currentReviewMove < moveHistory.length) {
+          setCurrentReviewMove((prev) => prev + 1);
+        } else {
+          setAutoPlayInterval(null);
+        }
+      }, autoPlayInterval);
+      return () => clearInterval(timer);
+    }
+  }, [autoPlayInterval, currentReviewMove, moveHistory.length, reviewMode]);
+
   // 初始化游戏
   useEffect(() => {
     startTimer();
@@ -347,5 +410,12 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
     resetTimer: resetGameTimer,
     formatTime,
     isTimeUp,
+    // 回顾功能相关
+    reviewMode,
+    setReviewMode,
+    currentReviewMove,
+    setCurrentReviewMove,
+    autoPlayInterval,
+    setAutoPlayInterval,
   };
 };

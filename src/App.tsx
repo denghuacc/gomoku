@@ -35,6 +35,13 @@ function App(): JSX.Element {
     toggleAudio,
     setVolume,
     applyConfig,
+    // 回顾功能相关
+    reviewMode,
+    setReviewMode,
+    currentReviewMove,
+    setCurrentReviewMove,
+    autoPlayInterval,
+    setAutoPlayInterval,
   } = useGomoku(config);
 
   // 计时器系统
@@ -62,6 +69,23 @@ function App(): JSX.Element {
     applyConfig(config);
   };
 
+  // 处理回顾模式
+  const handleReviewMove = (moveIndex: number) => {
+    setCurrentReviewMove(moveIndex);
+  };
+
+  const handleToggleReviewMode = () => {
+    setReviewMode(!reviewMode);
+  };
+
+  const handleToggleAutoPlay = () => {
+    if (autoPlayInterval !== null) {
+      setAutoPlayInterval(null);
+    } else {
+      setAutoPlayInterval(1000); // 1秒间隔
+    }
+  };
+
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4 font-sans">
       <div
@@ -84,6 +108,9 @@ function App(): JSX.Element {
               gameActive={gameActive}
               BOARD_SIZE={BOARD_SIZE}
               lastMove={lastMove}
+              moveHistory={moveHistory}
+              reviewMode={reviewMode}
+              currentReviewMove={currentReviewMove}
             />
 
             <GameStatus
@@ -122,6 +149,14 @@ function App(): JSX.Element {
               setAllowUndo={setAllowUndo}
               resetConfig={resetConfig}
               onApplyConfig={handleApplyConfig}
+              // GameReview props
+              moveHistory={moveHistory}
+              reviewMode={reviewMode}
+              currentReviewMove={currentReviewMove}
+              autoPlayInterval={autoPlayInterval}
+              onReviewMove={handleReviewMove}
+              onToggleReviewMode={handleToggleReviewMode}
+              onToggleAutoPlay={handleToggleAutoPlay}
             />
 
             <div className="flex gap-3">

@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Player } from "../hooks/useGomoku";
+import { Player, Move } from "../hooks/useGomoku";
 import { type GameConfig as GameConfigType } from "../hooks/useGameConfig";
 import { TimerState, TimerConfig } from "../hooks/useGameTimer";
 import GameInfo from "./GameInfo";
 import GameTimer from "./GameTimer";
 import GameConfig from "./GameConfig";
 import GameRules from "./GameRules";
+import { GameReview } from "./GameReview";
 
 interface GameTabsProps {
   // GameInfo props
@@ -36,9 +37,18 @@ interface GameTabsProps {
   setAllowUndo: (allow: boolean) => void;
   resetConfig: () => void;
   onApplyConfig?: () => void;
+
+  // GameReview props
+  moveHistory: Move[];
+  reviewMode: boolean;
+  currentReviewMove: number;
+  autoPlayInterval: number | null;
+  onReviewMove: (move: number) => void;
+  onToggleReviewMode: () => void;
+  onToggleAutoPlay: () => void;
 }
 
-type TabType = "info" | "timer" | "settings" | "rules";
+type TabType = "info" | "timer" | "settings" | "rules" | "review";
 
 const GameTabs: React.FC<GameTabsProps> = ({
   // GameInfo props
@@ -69,6 +79,15 @@ const GameTabs: React.FC<GameTabsProps> = ({
   setAllowUndo,
   resetConfig,
   onApplyConfig,
+
+  // GameReview props
+  moveHistory,
+  reviewMode,
+  currentReviewMove,
+  autoPlayInterval,
+  onReviewMove,
+  onToggleReviewMode,
+  onToggleAutoPlay,
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>("info");
 
@@ -129,6 +148,22 @@ const GameTabs: React.FC<GameTabsProps> = ({
       label: "游戏规则",
       icon: "fa-book",
       component: <GameRules />,
+    },
+    {
+      id: "review" as TabType,
+      label: "对局回顾",
+      icon: "fa-clock-rotate-left",
+      component: (
+        <GameReview
+          moveHistory={moveHistory}
+          reviewMode={reviewMode}
+          currentReviewMove={currentReviewMove}
+          onReviewMove={onReviewMove}
+          onToggleReviewMode={onToggleReviewMode}
+          isAutoPlaying={autoPlayInterval !== null}
+          onToggleAutoPlay={onToggleAutoPlay}
+        />
+      ),
     },
   ];
 
