@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import { Player, Move } from "../hooks/useGomoku";
 import { type GameConfig as GameConfigType } from "../hooks/useGameConfig";
 import { TimerState, TimerConfig } from "../hooks/useGameTimer";
+import { AIConfig, AIState, AIDifficulty, EvaluationMode } from "../ai/types";
 import GameInfo from "./GameInfo";
 import GameTimer from "./GameTimer";
 import GameConfig from "./GameConfig";
 import GameRules from "./GameRules";
 import { GameReview } from "./GameReview";
+import AIConfigComponent from "./AIConfig";
 
 interface GameTabsProps {
   // GameInfo props
@@ -46,9 +48,19 @@ interface GameTabsProps {
   onReviewMove: (move: number) => void;
   onToggleReviewMode: () => void;
   onToggleAutoPlay: () => void;
+
+  // AI props
+  aiConfig: AIConfig;
+  aiState: AIState;
+  updateAIConfig: (config: Partial<AIConfig>) => void;
+  toggleAI: () => void;
+  setAIDifficulty: (difficulty: AIDifficulty) => void;
+  setAIPlayer: (player: Player) => void;
+  setAIEvaluationMode: (mode: EvaluationMode) => void;
+  resetAIConfig: () => void;
 }
 
-type TabType = "info" | "timer" | "settings" | "rules" | "review";
+type TabType = "info" | "timer" | "settings" | "ai" | "rules" | "review";
 
 const GameTabs: React.FC<GameTabsProps> = ({
   // GameInfo props
@@ -88,6 +100,16 @@ const GameTabs: React.FC<GameTabsProps> = ({
   onReviewMove,
   onToggleReviewMode,
   onToggleAutoPlay,
+
+  // AI props
+  aiConfig,
+  aiState,
+  updateAIConfig,
+  toggleAI,
+  setAIDifficulty,
+  setAIPlayer,
+  setAIEvaluationMode,
+  resetAIConfig,
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>("info");
 
@@ -140,6 +162,25 @@ const GameTabs: React.FC<GameTabsProps> = ({
           setAllowUndo={setAllowUndo}
           resetConfig={resetConfig}
           onApplyConfig={onApplyConfig}
+        />
+      ),
+    },
+    {
+      id: "ai" as TabType,
+      label: "AI 对手",
+      icon: "fa-robot",
+      component: (
+        <AIConfigComponent
+          config={aiConfig}
+          state={aiState}
+          currentPlayer={currentPlayer}
+          gameActive={gameActive}
+          updateConfig={updateAIConfig}
+          toggleAI={toggleAI}
+          setDifficulty={setAIDifficulty}
+          setAIPlayer={setAIPlayer}
+          setEvaluationMode={setAIEvaluationMode}
+          resetConfig={resetAIConfig}
         />
       ),
     },

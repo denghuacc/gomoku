@@ -42,6 +42,15 @@ function App(): JSX.Element {
     setCurrentReviewMove,
     autoPlayInterval,
     setAutoPlayInterval,
+    // AI 相关
+    aiConfig,
+    aiState,
+    updateAIConfig,
+    toggleAI,
+    setAIDifficulty,
+    setAIPlayer,
+    setAIEvaluationMode,
+    resetAIConfig,
   } = useGomoku(config);
 
   // 计时器系统
@@ -157,6 +166,15 @@ function App(): JSX.Element {
               onReviewMove={handleReviewMove}
               onToggleReviewMode={handleToggleReviewMode}
               onToggleAutoPlay={handleToggleAutoPlay}
+              // AI props
+              aiConfig={aiConfig}
+              aiState={aiState}
+              updateAIConfig={updateAIConfig}
+              toggleAI={toggleAI}
+              setAIDifficulty={setAIDifficulty}
+              setAIPlayer={setAIPlayer}
+              setAIEvaluationMode={setAIEvaluationMode}
+              resetAIConfig={resetAIConfig}
             />
 
             <div className="flex gap-3">

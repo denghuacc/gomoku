@@ -1,7 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useAudioSystem } from "./useAudioSystem";
 import { useGameTimer } from "./useGameTimer";
+import { useAIConfig } from "./useAIConfig";
 import { type GameConfig } from "./useGameConfig";
+import { GomokuAI } from "../ai/engine";
+import { AIConfig, AIState } from "../ai/types";
 
 // 类型定义
 export type Player = 1 | 2; // 1: 黑棋, 2: 白棋
@@ -49,6 +52,15 @@ export interface UseGomokuReturn {
   setCurrentReviewMove: (move: number) => void;
   autoPlayInterval: number | null;
   setAutoPlayInterval: (interval: number | null) => void;
+  // AI 相关
+  aiConfig: AIConfig;
+  aiState: AIState;
+  updateAIConfig: (config: Partial<AIConfig>) => void;
+  toggleAI: () => void;
+  setAIDifficulty: (difficulty: any) => void;
+  setAIPlayer: (player: Player) => void;
+  setAIEvaluationMode: (mode: any) => void;
+  resetAIConfig: () => void;
 }
 
 export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
@@ -111,6 +123,23 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
     formatTime,
   } = useGameTimer();
 
+  // AI 系统
+  const {
+    config: aiConfig,
+    state: aiState,
+    updateConfig: updateAIConfig,
+    toggleAI,
+    setDifficulty: setAIDifficulty,
+    setAIPlayer,
+    setEvaluationMode: setAIEvaluationMode,
+    resetConfig: resetAIConfig,
+    setThinking,
+    setLastMove: setAILastMove,
+  } = useAIConfig();
+
+  // AI 引擎实例
+  const aiEngineRef = useRef<GomokuAI | null>(null);
+
   // 开始计时
   const startTimer = useCallback(() => {
     if (timerRef.current) {
@@ -133,10 +162,10 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
   const checkWin = useCallback(
     (board: GameBoard, row: number, col: number, player: Player): boolean => {
       const directions: [number, number][] = [
-        [1, 0], // 水平
-        [0, 1], // 垂直
-        [1, 1], // 对角线
-        [1, -1], // 反对角线
+        [0, 1], // 水平 (行不变，列变化)
+        [1, 0], // 垂直 (行变化，列不变)
+        [1, 1], // 对角线 (右下)
+        [1, -1], // 反对角线 (左下)
       ];
 
       for (const [dx, dy] of directions) {
@@ -144,8 +173,8 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
 
         // 正向检查
         for (let i = 1; i < BOARD_SIZE; i++) {
-          const newRow = row + i * dy;
-          const newCol = col + i * dx;
+          const newRow = row + i * dx;
+          const newCol = col + i * dy;
 
           if (
             newRow < 0 ||
@@ -165,8 +194,8 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
 
         // 反向检查
         for (let i = 1; i < BOARD_SIZE; i++) {
-          const newRow = row - i * dy;
-          const newCol = col - i * dx;
+          const newRow = row - i * dx;
+          const newCol = col - i * dy;
 
           if (
             newRow < 0 ||
@@ -382,6 +411,61 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
     return () => stopTimer();
   }, [startTimer, stopTimer, startGameTimer, initialConfig?.firstPlayer]);
 
+  // 初始化 AI 引擎
+  useEffect(() => {
+    aiEngineRef.current = new GomokuAI(aiConfig, BOARD_SIZE, winCondition);
+  }, [aiConfig, BOARD_SIZE, winCondition]);
+
+  // AI 移动逻辑
+  useEffect(() => {
+    const makeAIMove = async () => {
+      if (
+        !gameActive ||
+        !aiConfig.enabled ||
+        currentPlayer !== aiConfig.player ||
+        reviewMode ||
+        aiState.isThinking
+      ) {
+        return;
+      }
+
+      // 开始思考
+      setThinking(true);
+
+      try {
+        const aiMove = await aiEngineRef.current?.getBestMove(
+          gameBoard,
+          currentPlayer
+        );
+
+        if (aiMove && gameActive && currentPlayer === aiConfig.player) {
+          // 停止思考
+          setThinking(false);
+          setAILastMove(aiMove);
+
+          // 执行 AI 落子
+          makeMove(aiMove.row, aiMove.col);
+        }
+      } catch (error) {
+        console.error("AI move error:", error);
+        setThinking(false);
+      }
+    };
+
+    makeAIMove();
+  }, [
+    currentPlayer,
+    gameActive,
+    aiConfig.enabled,
+    aiConfig.player,
+    reviewMode,
+    gameBoard,
+    makeMove,
+    setThinking,
+    setAILastMove,
+    aiState.isThinking,
+  ]);
+
   return {
     gameBoard,
     currentPlayer,
@@ -417,5 +501,14 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
     setCurrentReviewMove,
     autoPlayInterval,
     setAutoPlayInterval,
+    // AI 相关
+    aiConfig,
+    aiState,
+    updateAIConfig,
+    toggleAI,
+    setAIDifficulty,
+    setAIPlayer,
+    setAIEvaluationMode,
+    resetAIConfig,
   };
 };
