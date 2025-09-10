@@ -131,6 +131,45 @@ function App(): JSX.Element {
 
           {/* 游戏控制和信息 */}
           <div className="w-full md:w-80 flex flex-col gap-6">
+            {/* 游戏操作按钮 */}
+            <div className="flex gap-3">
+              <button
+                onClick={resetGame}
+                className="flex-1 bg-primary hover:bg-primary/90 text-white py-3 px-4 rounded-lg font-medium btn-hover flex items-center justify-center"
+              >
+                <i className="fa-solid fa-refresh mr-2"></i>重新开始
+              </button>
+              <button
+                onClick={undoMove}
+                className={`flex-1 py-3 px-4 rounded-lg font-medium flex items-center justify-center transition-all ${
+                  !config.allowUndo
+                    ? "bg-red-100 text-red-400 cursor-not-allowed"
+                    : moveHistory.length === 0 || !gameActive
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-gray-200 hover:bg-gray-300 text-gray-700 btn-hover"
+                }`}
+                disabled={
+                  moveHistory.length === 0 || !gameActive || !config.allowUndo
+                }
+                title={
+                  !config.allowUndo
+                    ? "悔棋功能已在游戏设置中禁用"
+                    : moveHistory.length === 0
+                    ? "没有可悔棋的步数"
+                    : !gameActive
+                    ? "游戏已结束"
+                    : "撤销上一步棋"
+                }
+              >
+                <i
+                  className={`fa-solid ${
+                    !config.allowUndo ? "fa-ban" : "fa-undo"
+                  } mr-2`}
+                ></i>
+                {!config.allowUndo ? "禁止悔棋" : "悔棋"}
+              </button>
+            </div>
+
             <GameTabs
               // GameInfo props
               currentPlayer={currentPlayer}
@@ -176,44 +215,6 @@ function App(): JSX.Element {
               setAIEvaluationMode={setAIEvaluationMode}
               resetAIConfig={resetAIConfig}
             />
-
-            <div className="flex gap-3">
-              <button
-                onClick={resetGame}
-                className="flex-1 bg-primary hover:bg-primary/90 text-white py-3 px-4 rounded-lg font-medium btn-hover flex items-center justify-center"
-              >
-                <i className="fa-solid fa-refresh mr-2"></i>重新开始
-              </button>
-              <button
-                onClick={undoMove}
-                className={`flex-1 py-3 px-4 rounded-lg font-medium flex items-center justify-center transition-all ${
-                  !config.allowUndo
-                    ? "bg-red-100 text-red-400 cursor-not-allowed"
-                    : moveHistory.length === 0 || !gameActive
-                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    : "bg-gray-200 hover:bg-gray-300 text-gray-700 btn-hover"
-                }`}
-                disabled={
-                  moveHistory.length === 0 || !gameActive || !config.allowUndo
-                }
-                title={
-                  !config.allowUndo
-                    ? "悔棋功能已在游戏设置中禁用"
-                    : moveHistory.length === 0
-                    ? "没有可悔棋的步数"
-                    : !gameActive
-                    ? "游戏已结束"
-                    : "撤销上一步棋"
-                }
-              >
-                <i
-                  className={`fa-solid ${
-                    !config.allowUndo ? "fa-ban" : "fa-undo"
-                  } mr-2`}
-                ></i>
-                {!config.allowUndo ? "禁止悔棋" : "悔棋"}
-              </button>
-            </div>
           </div>
         </div>
 
