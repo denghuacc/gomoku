@@ -1,13 +1,17 @@
-import { useGomoku } from "./hooks/useGomoku";
+import { useGomoku, Player } from "./hooks/useGomoku";
 import { useGameConfig } from "./hooks/useGameConfig";
 import { useGameTimer } from "./hooks/useGameTimer";
 import GameBoard from "./components/GameBoard";
 import GameStatus from "./components/GameStatus";
 import GameTabs from "./components/GameTabs";
 import WinModal from "./components/WinModal";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 function App(): JSX.Element {
+  // 模态框状态管理 - 使用ref来跟踪上一次的winner状态
+  const [showWinModal, setShowWinModal] = useState(false);
+  const [lastWinnerShown, setLastWinnerShown] = useState<Player | null>(null);
+
   // 游戏配置
   const {
     config,
@@ -73,9 +77,39 @@ function App(): JSX.Element {
     }
   }, [currentPlayer, gameActive, switchTimerPlayer]);
 
+  // 监听游戏获胜状态，只在新的获胜者出现时显示模态框
+  useEffect(() => {
+    if (winner && winner !== lastWinnerShown) {
+      console.log("[App] New winner detected, showing modal:", winner);
+      setShowWinModal(true);
+      setLastWinnerShown(winner);
+    } else if (!winner) {
+      // 游戏重置时清除记录
+      setLastWinnerShown(null);
+      setShowWinModal(false);
+    }
+  }, [winner, lastWinnerShown]);
+
   // 应用配置并重新开始游戏
   const handleApplyConfig = () => {
     applyConfig(config);
+  };
+
+  // 关闭获胜模态框
+  const handleCloseWinModal = () => {
+    console.log("[App] Closing win modal, current state:", {
+      winner,
+      showWinModal,
+    });
+    setShowWinModal(false);
+  };
+
+  // 开始新游戏并关闭模态框
+  const handleNewGame = () => {
+    console.log("Starting new game"); // 调试日志
+    setShowWinModal(false);
+    setLastWinnerShown(null); // 重置获胜者记录
+    resetGame();
   };
 
   // 处理回顾模式
@@ -225,7 +259,20 @@ function App(): JSX.Element {
       </div>
 
       {/* 胜利提示模态框 */}
-      <WinModal winner={winner} isOpen={!!winner} onNewGame={resetGame} />
+      <WinModal
+        winner={winner}
+        isOpen={showWinModal}
+        onNewGame={handleNewGame}
+        onClose={handleCloseWinModal}
+      />
+
+      {/* 调试信息 */}
+      {process.env.NODE_ENV === "development" && (
+        <div className="fixed bottom-4 left-4 bg-black text-white p-2 rounded text-xs">
+          Winner: {winner ? `Player ${winner}` : "None"}, Modal:{" "}
+          {showWinModal ? "Open" : "Closed"}
+        </div>
+      )}
     </div>
   );
 }
