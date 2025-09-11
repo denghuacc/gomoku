@@ -244,9 +244,9 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
 
       const newBoard = gameBoard.map((row) => [...row]) as GameBoard;
       newBoard[row][col] = currentPlayer;
+      setGameBoard(newBoard);
 
       const newMove = { row, col, player: currentPlayer };
-      setGameBoard(newBoard);
       setMoveHistory((prev) => [...prev, newMove]);
       setLastMove(newMove);
 
@@ -291,16 +291,24 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
   // 应用配置
   const applyConfig = useCallback(
     (config: GameConfig) => {
-      setBoardSize(config.boardSize);
-      setWinCondition(config.winCondition);
+      const validatedBoardSize = [13, 15, 19].includes(config.boardSize)
+        ? config.boardSize
+        : 15; // Default board size
+      const validatedWinCondition =
+        config.winCondition > 0 && config.winCondition <= validatedBoardSize
+          ? config.winCondition
+          : 5; // Default win condition
+
+      setBoardSize(validatedBoardSize);
+      setWinCondition(validatedWinCondition);
       setAllowUndo(config.allowUndo);
       setCurrentPlayer(config.firstPlayer);
 
       // 重新创建棋盘
       setGameBoard(
-        Array(config.boardSize)
+        Array(validatedBoardSize)
           .fill(null)
-          .map(() => Array(config.boardSize).fill(0))
+          .map(() => Array(validatedBoardSize).fill(0))
       );
       setGameActive(true);
       setMoveHistory([]);
