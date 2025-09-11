@@ -6,7 +6,6 @@ import { AIConfig, AIState, AIDifficulty, EvaluationMode } from "../ai/types";
 import GameInfo from "./GameInfo";
 import GameTimer from "./GameTimer";
 import GameConfig from "./GameConfig";
-import GameRules from "./GameRules";
 import { GameReview } from "./GameReview";
 import AIConfigComponent from "./AIConfig";
 
@@ -60,7 +59,7 @@ interface GameTabsProps {
   resetAIConfig: () => void;
 }
 
-type TabType = "info" | "timer" | "settings" | "ai" | "rules" | "review";
+type TabType = "info" | "timer" | "settings" | "ai" | "review";
 
 const GameTabs: React.FC<GameTabsProps> = ({
   // GameInfo props
@@ -183,12 +182,6 @@ const GameTabs: React.FC<GameTabsProps> = ({
           resetConfig={resetAIConfig}
         />
       ),
-    },
-    {
-      id: "rules" as TabType,
-      label: "游戏规则",
-      icon: "fa-book",
-      component: <GameRules />,
     },
     {
       id: "review" as TabType,
