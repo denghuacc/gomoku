@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <!-- 渐变定义 -->
+    <radialGradient id="boardGrad" cx="0.3" cy="0.3" r="0.8">
+      <stop offset="0%" style="stop-color:#E6B886;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D4A574;stop-opacity:1" />
+    </radialGradient>
+    <radialGradient id="blackPiece" cx="0.4" cy="0.4" r="0.6">
+      <stop offset="0%" style="stop-color:#333;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#000;stop-opacity:1" />
+    </radialGradient>
+    <radialGradient id="whitePiece" cx="0.4" cy="0.4" r="0.6">
+      <stop offset="0%" style="stop-color:#fff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e0e0e0;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  
+  <!-- 棋盘背景 -->
+  <rect x="2" y="2" width="28" height="28" rx="2" fill="url(#boardGrad)" stroke="#8B4513" stroke-width="0.8"/>
+  
+  <!-- 棋盘网格 - 简化版本 -->
+  <g stroke="#8B4513" stroke-width="0.4" opacity="0.8">
+    <!-- 主要网格线 -->
+    <line x1="6" y1="6" x2="26" y2="6"/>
+    <line x1="6" y1="12" x2="26" y2="12"/>
+    <line x1="6" y1="18" x2="26" y2="18"/>
+    <line x1="6" y1="24" x2="26" y2="24"/>
+    <line x1="6" y1="6" x2="6" y2="26"/>
+    <line x1="12" y1="6" x2="12" y2="26"/>
+    <line x1="18" y1="6" x2="18" y2="26"/>
+    <line x1="24" y1="6" x2="24" y2="26"/>
+  </g>
+  
+  <!-- 棋盘边框 -->
+  <rect x="6" y="6" width="20" height="20" fill="none" stroke="#8B4513" stroke-width="0.6"/>
+  
+  <!-- 天元点 -->
+  <circle cx="16" cy="16" r="0.6" fill="#8B4513"/>
+  
+  <!-- 棋子 - 五子连线的经典排列 -->
+  <!-- 黑棋 -->
+  <circle cx="10" cy="12" r="1.6" fill="url(#blackPiece)" stroke="#000" stroke-width="0.1"/>
+  <circle cx="13" cy="12" r="1.6" fill="url(#blackPiece)" stroke="#000" stroke-width="0.1"/>
+  <circle cx="16" cy="12" r="1.6" fill="url(#blackPiece)" stroke="#000" stroke-width="0.1"/>
+  
+  <!-- 白棋 -->
+  <circle cx="12" cy="18" r="1.6" fill="url(#whitePiece)" stroke="#ccc" stroke-width="0.1"/>
+  <circle cx="18" cy="18" r="1.6" fill="url(#whitePiece)" stroke="#ccc" stroke-width="0.1"/>
+</svg>
