@@ -1,8 +1,13 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
 # 运行 lint-staged，检查并修复提交的文件
+echo "🔧 格式化和修复暂存文件..."
 npx lint-staged
 
 # 运行 TypeScript 类型检查
+echo "🔍 TypeScript 类型检查..."
 pnpm type-check
+
+# 运行快速测试（只测试相关文件）
+echo "🧪 运行相关测试..."
+pnpm test --run --reporter=basic
+
+echo "✅ 所有检查通过，准备提交..."

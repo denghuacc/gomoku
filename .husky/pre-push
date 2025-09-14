@@ -1,0 +1,16 @@
+# Pre-push 钩子：运行完整的检查
+echo "🚀 运行 pre-push 检查..."
+
+# 运行完整的 ESLint 检查（允许少量警告）
+echo "🔍 完整 ESLint 检查..."
+pnpm lint
+
+# 运行完整的测试套件
+echo "🧪 运行完整测试套件..."
+pnpm test:unit --run
+
+# 运行构建测试
+echo "🏗️ 测试构建..."
+pnpm build
+
+echo "✅ 所有 pre-push 检查通过，可以推送！"
