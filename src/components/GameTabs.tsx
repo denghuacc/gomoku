@@ -201,14 +201,14 @@ const GameTabs: React.FC<GameTabsProps> = ({
     },
   ];
 
-  const activeTabData = tabs.find((tab) => tab.id === activeTab);
+  const activeTabData = tabs.find(tab => tab.id === activeTab);
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200">
       {/* 标签页导航 */}
       <div className="border-b border-gray-200">
         <nav className="flex space-x-0" aria-label="Tabs">
-          {tabs.map((tab) => (
+          {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}

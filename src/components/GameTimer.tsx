@@ -100,8 +100,8 @@ const GameTimer: React.FC<GameTimerProps> = ({
               {config.mode === "unlimited"
                 ? formatTime(timerState.gameTime)
                 : config.mode === "per_move"
-                ? formatTime(timerState.player1.moveTime)
-                : formatTime(timerState.player1.totalTime)}
+                  ? formatTime(timerState.player1.moveTime)
+                  : formatTime(timerState.player1.totalTime)}
             </div>
           </div>
 
@@ -143,8 +143,8 @@ const GameTimer: React.FC<GameTimerProps> = ({
               {config.mode === "unlimited"
                 ? formatTime(timerState.gameTime)
                 : config.mode === "per_move"
-                ? formatTime(timerState.player2.moveTime)
-                : formatTime(timerState.player2.totalTime)}
+                  ? formatTime(timerState.player2.moveTime)
+                  : formatTime(timerState.player2.totalTime)}
             </div>
           </div>
 
@@ -210,7 +210,7 @@ const GameTimer: React.FC<GameTimerProps> = ({
                   计时模式
                 </label>
                 <div className="space-y-2">
-                  {TIMER_MODE_OPTIONS.map((option) => (
+                  {TIMER_MODE_OPTIONS.map(option => (
                     <label
                       key={option.value}
                       className={`flex items-center p-2 rounded border cursor-pointer text-sm ${
@@ -224,7 +224,7 @@ const GameTimer: React.FC<GameTimerProps> = ({
                         name="timerMode"
                         value={option.value}
                         checked={config.mode === option.value}
-                        onChange={(e) =>
+                        onChange={e =>
                           updateConfig({ mode: e.target.value as TimerMode })
                         }
                         className="sr-only"
@@ -261,7 +261,7 @@ const GameTimer: React.FC<GameTimerProps> = ({
                         min="1"
                         max="180"
                         value={Math.floor(config.totalTime / 60)}
-                        onChange={(e) =>
+                        onChange={e =>
                           updateConfig({
                             totalTime: parseInt(e.target.value) * 60,
                           })
@@ -285,7 +285,7 @@ const GameTimer: React.FC<GameTimerProps> = ({
                         min="5"
                         max="300"
                         value={config.moveTime}
-                        onChange={(e) =>
+                        onChange={e =>
                           updateConfig({ moveTime: parseInt(e.target.value) })
                         }
                         className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
@@ -307,7 +307,7 @@ const GameTimer: React.FC<GameTimerProps> = ({
                         min="0"
                         max="60"
                         value={config.increment}
-                        onChange={(e) =>
+                        onChange={e =>
                           updateConfig({ increment: parseInt(e.target.value) })
                         }
                         className="w-full px-2 py-1 border border-gray-300 rounded text-sm"

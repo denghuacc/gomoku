@@ -146,7 +146,7 @@ export const useAudioSystem = (): UseAudioSystemReturn => {
       // 添加最后的和弦效果
       setTimeout(() => {
         const chord = [523.25, 659.25, 783.99]; // C大调和弦
-        chord.forEach((frequency) => {
+        chord.forEach(frequency => {
           const oscillator = audioContext.createOscillator();
           const gainNode = audioContext.createGain();
 
@@ -181,14 +181,14 @@ export const useAudioSystem = (): UseAudioSystemReturn => {
 
   // 切换音效开关
   const toggleAudio = useCallback(() => {
-    setConfig((prev) => ({ ...prev, enabled: !prev.enabled }));
+    setConfig(prev => ({ ...prev, enabled: !prev.enabled }));
   }, []);
 
   // 设置音量
   const setVolume = useCallback((volume: number) => {
     const clampedVolume = Math.max(0, Math.min(1, volume));
     console.log("Setting volume to:", clampedVolume); // 调试日志
-    setConfig((prev) => ({
+    setConfig(prev => ({
       ...prev,
       volume: clampedVolume,
     }));

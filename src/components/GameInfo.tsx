@@ -87,7 +87,7 @@ const GameInfo: React.FC<GameInfoProps> = ({
                 max="1"
                 step="0.1"
                 value={volume}
-                onChange={(e) => {
+                onChange={e => {
                   const newVolume = parseFloat(e.target.value);
                   setVolume(newVolume);
                   console.log("Volume changed to:", newVolume); // 调试日志

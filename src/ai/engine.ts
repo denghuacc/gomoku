@@ -1,5 +1,5 @@
-import { Player, GameBoard, Move } from '../hooks/useGomoku';
-import { AIConfig, EvaluationResult } from './types';
+import { Player, GameBoard, Move } from "../hooks/useGomoku";
+import { AIConfig, EvaluationResult } from "./types";
 
 /**
  * AI 引擎类
@@ -38,13 +38,13 @@ export class GomokuAI {
     try {
       // 根据难度选择不同的策略
       switch (this.config.difficulty) {
-        case 'easy':
+        case "easy":
           result = this.getEasyMove(board, currentPlayer);
           break;
-        case 'medium':
+        case "medium":
           result = this.getMediumMove(board, currentPlayer);
           break;
-        case 'hard':
+        case "hard":
           result = this.getHardMoveWithTimeout(board, currentPlayer);
           break;
         default:
@@ -52,7 +52,7 @@ export class GomokuAI {
           break;
       }
     } catch (error) {
-      console.error('[AI] 计算出错，使用备用策略:', error);
+      console.error("[AI] 计算出错，使用备用策略:", error);
       result = this.getBackupMove(board, currentPlayer);
     }
 
@@ -139,15 +139,15 @@ export class GomokuAI {
 
     // 根据战术风格调整优先级
     switch (mode) {
-      case 'offensive':
+      case "offensive":
         // 进攻型：优先进攻，后考虑防守
         return this.getOffensiveMove(board, player, opponent, useDeepSearch);
 
-      case 'defensive':
+      case "defensive":
         // 防守型：优先防守，后考虑进攻
         return this.getDefensiveMove(board, player, opponent, useDeepSearch);
 
-      case 'balanced':
+      case "balanced":
       default:
         // 平衡型：平衡考虑攻守
         return this.getBalancedMove(board, player, opponent, useDeepSearch);
@@ -702,15 +702,15 @@ export class GomokuAI {
     const mode = this.config.evaluationMode;
 
     switch (mode) {
-      case 'offensive':
+      case "offensive":
         // 进攻型：优先自己的得分，进攻权重1.3倍，防守权重0.7倍
         return myScore * 1.3 - opponentScore * 0.7;
 
-      case 'defensive':
+      case "defensive":
         // 防守型：优先阻止对手，防守权重1.3倍，进攻权重0.7倍
         return myScore * 0.7 - opponentScore * 1.3;
 
-      case 'balanced':
+      case "balanced":
       default:
         // 平衡型：攻守权重相等
         return myScore - opponentScore;

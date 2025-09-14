@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import {
   generateColumnLabels,
   generateRowLabels,
@@ -35,12 +35,15 @@ const GameBoard: React.FC<GameBoardProps> = ({
   currentReviewMove,
 }) => {
   // 获取指定位置的落子顺序
-  const getMoveNumber = (row: number, col: number): number | null => {
-    const moveIndex = moveHistory.findIndex(
-      (move) => move.row === row && move.col === col
-    );
-    return moveIndex === -1 ? null : moveIndex + 1;
-  };
+  const getMoveNumber = useCallback(
+    (row: number, col: number): number | null => {
+      const moveIndex = moveHistory.findIndex(
+        move => move.row === row && move.col === col
+      );
+      return moveIndex === -1 ? null : moveIndex + 1;
+    },
+    [moveHistory]
+  );
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [previewPosition, setPreviewPosition] =
     useState<PreviewPosition | null>(null);
@@ -56,212 +59,233 @@ const GameBoard: React.FC<GameBoardProps> = ({
   const CANVAS_SIZE = CELL_SIZE * BOARD_SIZE;
   const GRID_OFFSET = CELL_SIZE / 2; // 网格起始偏移
 
-  // 绘制棋盘
-  const drawBoard = (
-    ctx: CanvasRenderingContext2D,
-    showPreview: boolean = false
-  ): void => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  // 绘制高亮效果
+  const drawHighlight = useCallback(
+    (
+      ctx: CanvasRenderingContext2D,
+      row: number,
+      col: number,
+      player: Player
+    ): void => {
+      const x = GRID_OFFSET + col * CELL_SIZE;
+      const y = GRID_OFFSET + row * CELL_SIZE;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // 绘制网格线 - 绘制 BOARD_SIZE+1 根线（包括边界）
-    ctx.strokeStyle = "#8B4513";
-    ctx.lineWidth = 1.5;
-
-    // 绘制 BOARD_SIZE+1 根线（0到BOARD_SIZE，总共BOARD_SIZE+1根）
-    for (let i = 0; i <= BOARD_SIZE; i++) {
-      const pos = GRID_OFFSET + i * CELL_SIZE;
-
-      // 水平线
       ctx.beginPath();
-      ctx.moveTo(GRID_OFFSET, pos);
-      ctx.lineTo(canvas.width - GRID_OFFSET, pos);
+      ctx.arc(x, y, PIECE_SIZE / 2 + 4, 0, Math.PI * 2);
+      ctx.strokeStyle = player === 1 ? "#FF4444" : "#4444FF";
+      ctx.lineWidth = 2;
       ctx.stroke();
+    },
+    [CELL_SIZE, GRID_OFFSET, PIECE_SIZE]
+  );
 
-      // 垂直线
+  // 绘制棋子
+  const drawPiece = useCallback(
+    (
+      ctx: CanvasRenderingContext2D,
+      row: number,
+      col: number,
+      player: Player
+    ): void => {
+      const x = GRID_OFFSET + col * CELL_SIZE;
+      const y = GRID_OFFSET + row * CELL_SIZE;
+
+      // 棋子阴影
       ctx.beginPath();
-      ctx.moveTo(pos, GRID_OFFSET);
-      ctx.lineTo(pos, canvas.height - GRID_OFFSET);
-      ctx.stroke();
-    }
-
-    // 绘制天元和星位（根据棋盘大小动态调整）
-    let starPoints: { x: number; y: number }[] = [];
-
-    if (BOARD_SIZE === 13) {
-      starPoints = [
-        { x: 3, y: 3 },
-        { x: 3, y: 9 },
-        { x: 6, y: 6 },
-        { x: 9, y: 3 },
-        { x: 9, y: 9 },
-      ];
-    } else if (BOARD_SIZE === 15) {
-      starPoints = [
-        { x: 3, y: 3 },
-        { x: 3, y: 11 },
-        { x: 7, y: 7 },
-        { x: 11, y: 3 },
-        { x: 11, y: 11 },
-      ];
-    } else if (BOARD_SIZE === 19) {
-      starPoints = [
-        { x: 3, y: 3 },
-        { x: 3, y: 9 },
-        { x: 3, y: 15 },
-        { x: 9, y: 3 },
-        { x: 9, y: 9 },
-        { x: 9, y: 15 },
-        { x: 15, y: 3 },
-        { x: 15, y: 9 },
-        { x: 15, y: 15 },
-      ];
-    }
-
-    starPoints.forEach((point) => {
-      ctx.beginPath();
-      ctx.arc(
-        GRID_OFFSET + point.x * CELL_SIZE,
-        GRID_OFFSET + point.y * CELL_SIZE,
-        4,
-        0,
-        Math.PI * 2
-      );
-      ctx.fillStyle = "#8B4513";
+      ctx.arc(x, y, PIECE_SIZE / 2 + 2, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
       ctx.fill();
-    });
 
-    // 绘制棋子
-    for (let i = 0; i < BOARD_SIZE; i++) {
-      for (let j = 0; j < BOARD_SIZE; j++) {
-        if (gameBoard[i][j] !== 0) {
-          drawPiece(ctx, i, j, gameBoard[i][j] as Player);
-          // 绘制最后落子或当前回顾落子的高亮效果
-          if (
-            (!reviewMode &&
-              lastMove &&
-              lastMove.row === i &&
-              lastMove.col === j) || // 普通模式下高亮最后落子
-            (reviewMode &&
-              moveHistory[currentReviewMove - 1]?.row === i &&
-              moveHistory[currentReviewMove - 1]?.col === j) // 回顾模式下高亮当前回顾的落子
-          ) {
-            drawHighlight(ctx, i, j, gameBoard[i][j] as Player);
-          }
+      // 棋子本体
+      ctx.beginPath();
+      ctx.arc(x, y, PIECE_SIZE / 2, 0, Math.PI * 2);
+
+      if (player === 1) {
+        // 黑棋 - 渐变效果
+        const gradient = ctx.createRadialGradient(
+          x - PIECE_SIZE / 6,
+          y - PIECE_SIZE / 6,
+          PIECE_SIZE / 10,
+          x,
+          y,
+          PIECE_SIZE / 2
+        );
+        gradient.addColorStop(0, "#555");
+        gradient.addColorStop(1, "#000");
+        ctx.fillStyle = gradient;
+      } else {
+        // 白棋 - 渐变效果
+        const gradient = ctx.createRadialGradient(
+          x - PIECE_SIZE / 6,
+          y - PIECE_SIZE / 6,
+          PIECE_SIZE / 10,
+          x,
+          y,
+          PIECE_SIZE / 2
+        );
+        gradient.addColorStop(0, "#fff");
+        gradient.addColorStop(1, "#ddd");
+        ctx.fillStyle = gradient;
+      }
+
+      ctx.fill();
+
+      // 棋子边缘
+      ctx.strokeStyle = player === 1 ? "#333" : "#ccc";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // 只在回顾模式下绘制落子顺序编号
+      if (reviewMode) {
+        const moveNumber = getMoveNumber(row, col);
+        if (moveNumber !== null) {
+          ctx.font = `${PIECE_SIZE * 0.4}px Arial`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillStyle = player === 1 ? "#fff" : "#000";
+          ctx.fillText(moveNumber.toString(), x, y);
         }
       }
-    }
+    },
+    [reviewMode, getMoveNumber, CELL_SIZE, GRID_OFFSET, PIECE_SIZE]
+  );
 
-    // 绘制预览棋子
-    if (showPreview && previewPosition && gameActive) {
-      const { row, col } = previewPosition;
-      if (gameBoard[row][col] === 0) {
+  // 绘制棋盘
+  const drawBoard = useCallback(
+    (ctx: CanvasRenderingContext2D, showPreview: boolean = false): void => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 绘制网格线 - 绘制 BOARD_SIZE+1 根线（包括边界）
+      ctx.strokeStyle = "#8B4513";
+      ctx.lineWidth = 1.5;
+
+      // 绘制 BOARD_SIZE+1 根线（0到BOARD_SIZE，总共BOARD_SIZE+1根）
+      for (let i = 0; i <= BOARD_SIZE; i++) {
+        const pos = GRID_OFFSET + i * CELL_SIZE;
+
+        // 水平线
+        ctx.beginPath();
+        ctx.moveTo(GRID_OFFSET, pos);
+        ctx.lineTo(canvas.width - GRID_OFFSET, pos);
+        ctx.stroke();
+
+        // 垂直线
+        ctx.beginPath();
+        ctx.moveTo(pos, GRID_OFFSET);
+        ctx.lineTo(pos, canvas.height - GRID_OFFSET);
+        ctx.stroke();
+      }
+
+      // 绘制天元和星位（根据棋盘大小动态调整）
+      let starPoints: { x: number; y: number }[] = [];
+
+      if (BOARD_SIZE === 13) {
+        starPoints = [
+          { x: 3, y: 3 },
+          { x: 3, y: 9 },
+          { x: 6, y: 6 },
+          { x: 9, y: 3 },
+          { x: 9, y: 9 },
+        ];
+      } else if (BOARD_SIZE === 15) {
+        starPoints = [
+          { x: 3, y: 3 },
+          { x: 3, y: 11 },
+          { x: 7, y: 7 },
+          { x: 11, y: 3 },
+          { x: 11, y: 11 },
+        ];
+      } else if (BOARD_SIZE === 19) {
+        starPoints = [
+          { x: 3, y: 3 },
+          { x: 3, y: 9 },
+          { x: 3, y: 15 },
+          { x: 9, y: 3 },
+          { x: 9, y: 9 },
+          { x: 9, y: 15 },
+          { x: 15, y: 3 },
+          { x: 15, y: 9 },
+          { x: 15, y: 15 },
+        ];
+      }
+
+      starPoints.forEach(point => {
         ctx.beginPath();
         ctx.arc(
-          GRID_OFFSET + col * CELL_SIZE,
-          GRID_OFFSET + row * CELL_SIZE,
-          PIECE_SIZE / 2,
+          GRID_OFFSET + point.x * CELL_SIZE,
+          GRID_OFFSET + point.y * CELL_SIZE,
+          4,
           0,
           Math.PI * 2
         );
-
-        if (currentPlayer === 1) {
-          ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
-        } else {
-          ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
-        }
-
+        ctx.fillStyle = "#8B4513";
         ctx.fill();
+      });
+
+      // 绘制棋子
+      for (let i = 0; i < BOARD_SIZE; i++) {
+        for (let j = 0; j < BOARD_SIZE; j++) {
+          if (gameBoard[i][j] !== 0) {
+            drawPiece(ctx, i, j, gameBoard[i][j] as Player);
+            // 绘制最后落子或当前回顾落子的高亮效果
+            if (
+              (!reviewMode &&
+                lastMove &&
+                lastMove.row === i &&
+                lastMove.col === j) || // 普通模式下高亮最后落子
+              (reviewMode &&
+                moveHistory[currentReviewMove - 1]?.row === i &&
+                moveHistory[currentReviewMove - 1]?.col === j) // 回顾模式下高亮当前回顾的落子
+            ) {
+              drawHighlight(ctx, i, j, gameBoard[i][j] as Player);
+            }
+          }
+        }
       }
-    }
-  };
 
-  // 绘制高亮效果
-  const drawHighlight = (
-    ctx: CanvasRenderingContext2D,
-    row: number,
-    col: number,
-    player: Player
-  ): void => {
-    const x = GRID_OFFSET + col * CELL_SIZE;
-    const y = GRID_OFFSET + row * CELL_SIZE;
+      // 绘制预览棋子
+      if (showPreview && previewPosition && gameActive) {
+        const { row, col } = previewPosition;
+        if (gameBoard[row][col] === 0) {
+          ctx.beginPath();
+          ctx.arc(
+            GRID_OFFSET + col * CELL_SIZE,
+            GRID_OFFSET + row * CELL_SIZE,
+            PIECE_SIZE / 2,
+            0,
+            Math.PI * 2
+          );
 
-    ctx.beginPath();
-    ctx.arc(x, y, PIECE_SIZE / 2 + 4, 0, Math.PI * 2);
-    ctx.strokeStyle = player === 1 ? "#FF4444" : "#4444FF";
-    ctx.lineWidth = 2;
-    ctx.stroke();
-  };
+          if (currentPlayer === 1) {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+          } else {
+            ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+          }
 
-  // 绘制棋子
-  const drawPiece = (
-    ctx: CanvasRenderingContext2D,
-    row: number,
-    col: number,
-    player: Player
-  ): void => {
-    const x = GRID_OFFSET + col * CELL_SIZE;
-    const y = GRID_OFFSET + row * CELL_SIZE;
-
-    // 棋子阴影
-    ctx.beginPath();
-    ctx.arc(x, y, PIECE_SIZE / 2 + 2, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
-    ctx.fill();
-
-    // 棋子本体
-    ctx.beginPath();
-    ctx.arc(x, y, PIECE_SIZE / 2, 0, Math.PI * 2);
-
-    if (player === 1) {
-      // 黑棋 - 渐变效果
-      const gradient = ctx.createRadialGradient(
-        x - PIECE_SIZE / 6,
-        y - PIECE_SIZE / 6,
-        PIECE_SIZE / 10,
-        x,
-        y,
-        PIECE_SIZE / 2
-      );
-      gradient.addColorStop(0, "#555");
-      gradient.addColorStop(1, "#000");
-      ctx.fillStyle = gradient;
-    } else {
-      // 白棋 - 渐变效果
-      const gradient = ctx.createRadialGradient(
-        x - PIECE_SIZE / 6,
-        y - PIECE_SIZE / 6,
-        PIECE_SIZE / 10,
-        x,
-        y,
-        PIECE_SIZE / 2
-      );
-      gradient.addColorStop(0, "#fff");
-      gradient.addColorStop(1, "#ddd");
-      ctx.fillStyle = gradient;
-    }
-
-    ctx.fill();
-
-    // 棋子边缘
-    ctx.strokeStyle = player === 1 ? "#333" : "#ccc";
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
-    // 只在回顾模式下绘制落子顺序编号
-    if (reviewMode) {
-      const moveNumber = getMoveNumber(row, col);
-      if (moveNumber !== null) {
-        ctx.font = `${PIECE_SIZE * 0.4}px Arial`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillStyle = player === 1 ? "#fff" : "#000";
-        ctx.fillText(moveNumber.toString(), x, y);
+          ctx.fill();
+        }
       }
-    }
-  };
+    },
+    [
+      gameBoard,
+      lastMove,
+      reviewMode,
+      moveHistory,
+      currentReviewMove,
+      previewPosition,
+      gameActive,
+      currentPlayer,
+      BOARD_SIZE,
+      CELL_SIZE,
+      GRID_OFFSET,
+      PIECE_SIZE,
+      drawHighlight,
+      drawPiece,
+    ]
+  );
 
   // 处理点击事件
   const handleClick = (e: React.MouseEvent<HTMLCanvasElement>): void => {
@@ -325,7 +349,14 @@ const GameBoard: React.FC<GameBoardProps> = ({
     if (!ctx) return;
 
     drawBoard(ctx, true);
-  }, [gameBoard, previewPosition, currentPlayer, gameActive, reviewMode]);
+  }, [
+    gameBoard,
+    previewPosition,
+    currentPlayer,
+    gameActive,
+    reviewMode,
+    drawBoard,
+  ]);
 
   // 设置Canvas尺寸 - 修正为完整尺寸
   useEffect(() => {

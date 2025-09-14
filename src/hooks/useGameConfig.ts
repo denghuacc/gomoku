@@ -75,7 +75,7 @@ export const useGameConfig = (): UseGameConfigReturn => {
 
   // 更新配置
   const updateConfig = useCallback((newConfig: Partial<GameConfig>) => {
-    setConfig((prev) => ({ ...prev, ...newConfig }));
+    setConfig(prev => ({ ...prev, ...newConfig }));
   }, []);
 
   // 重置配置

@@ -179,8 +179,8 @@ function App(): JSX.Element {
                   !config.allowUndo
                     ? "bg-red-100 text-red-400 cursor-not-allowed"
                     : moveHistory.length === 0 || !gameActive
-                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    : "bg-gray-200 hover:bg-gray-300 text-gray-700 btn-hover"
+                      ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                      : "bg-gray-200 hover:bg-gray-300 text-gray-700 btn-hover"
                 }`}
                 disabled={
                   moveHistory.length === 0 || !gameActive || !config.allowUndo
@@ -189,10 +189,10 @@ function App(): JSX.Element {
                   !config.allowUndo
                     ? "悔棋功能已在游戏设置中禁用"
                     : moveHistory.length === 0
-                    ? "没有可悔棋的步数"
-                    : !gameActive
-                    ? "游戏已结束"
-                    : "撤销上一步棋"
+                      ? "没有可悔棋的步数"
+                      : !gameActive
+                        ? "游戏已结束"
+                        : "撤销上一步棋"
                 }
               >
                 <i

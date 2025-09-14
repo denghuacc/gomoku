@@ -131,7 +131,7 @@ const AIConfigComponent: React.FC<AIConfigProps> = ({
                   AI 难度
                 </label>
                 <div className="space-y-2">
-                  {AI_DIFFICULTY_OPTIONS.map((option) => (
+                  {AI_DIFFICULTY_OPTIONS.map(option => (
                     <label
                       key={option.value}
                       className="flex items-center cursor-pointer p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -169,7 +169,7 @@ const AIConfigComponent: React.FC<AIConfigProps> = ({
                   战术风格
                 </label>
                 <div className="space-y-2">
-                  {EVALUATION_MODE_OPTIONS.map((option) => (
+                  {EVALUATION_MODE_OPTIONS.map(option => (
                     <label
                       key={option.value}
                       className="flex items-center cursor-pointer p-2 rounded-lg hover:bg-gray-100 transition-colors"

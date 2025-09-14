@@ -95,7 +95,7 @@ export const useGameTimer = (
 
   // 更新配置
   const updateConfig = useCallback((newConfig: Partial<TimerConfig>) => {
-    setConfig((prev) => ({ ...prev, ...newConfig }));
+    setConfig(prev => ({ ...prev, ...newConfig }));
   }, []);
 
   // 格式化时间显示
@@ -144,7 +144,7 @@ export const useGameTimer = (
     if (timerState.isPaused) return;
 
     intervalRef.current = setInterval(() => {
-      setTimerState((prevState) => {
+      setTimerState(prevState => {
         const newState = { ...prevState };
 
         // 游戏总时间增加
@@ -182,7 +182,7 @@ export const useGameTimer = (
 
   // 开始计时
   const startTimer = useCallback((currentPlayer: Player) => {
-    setTimerState((prev) => ({
+    setTimerState(prev => ({
       ...prev,
       player1: { ...prev.player1, isActive: currentPlayer === 1 },
       player2: { ...prev.player2, isActive: currentPlayer === 2 },
@@ -192,18 +192,18 @@ export const useGameTimer = (
 
   // 暂停计时
   const pauseTimer = useCallback(() => {
-    setTimerState((prev) => ({ ...prev, isPaused: true }));
+    setTimerState(prev => ({ ...prev, isPaused: true }));
   }, []);
 
   // 恢复计时
   const resumeTimer = useCallback(() => {
-    setTimerState((prev) => ({ ...prev, isPaused: false }));
+    setTimerState(prev => ({ ...prev, isPaused: false }));
   }, []);
 
   // 切换玩家
   const switchPlayer = useCallback(
     (newPlayer: Player) => {
-      setTimerState((prev) => {
+      setTimerState(prev => {
         const newState = { ...prev };
 
         // 应用费舍尔增量

@@ -323,7 +323,7 @@ describe("GameBoard Coordinate Labels and Cursor", () => {
     const cols = Array.from({ length: BOARD_SIZE }, (_, i) =>
       String.fromCharCode(65 + i)
     );
-    cols.forEach((label) => {
+    cols.forEach(label => {
       expect(getAllByText(label).length).toBeGreaterThanOrEqual(1);
     });
   });
@@ -440,7 +440,7 @@ describe("GameBoard advanced logic coverage", () => {
     const { container } = render(
       <GameBoard
         gameBoard={(() => {
-          const b = baseBoard.map((row) => [...row]);
+          const b = baseBoard.map(row => [...row]);
           b[2][2] = 1;
           return b;
         })()}

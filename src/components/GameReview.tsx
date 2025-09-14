@@ -87,7 +87,7 @@ export const GameReview: React.FC<GameReviewProps> = ({
                   min={0}
                   max={moveHistory.length}
                   value={currentReviewMove}
-                  onChange={(e) => onReviewMove(Number(e.target.value))}
+                  onChange={e => onReviewMove(Number(e.target.value))}
                   className="w-full"
                 />
               </div>

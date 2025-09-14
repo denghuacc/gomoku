@@ -64,7 +64,7 @@ const GameConfig: React.FC<GameConfigProps> = ({
                 棋盘规格
               </label>
               <div className="grid grid-cols-1 gap-2">
-                {BOARD_SIZE_OPTIONS.map((option) => (
+                {BOARD_SIZE_OPTIONS.map(option => (
                   <label
                     key={option.value}
                     className={`relative flex items-center p-3 rounded-lg border cursor-pointer transition-colors ${
@@ -101,7 +101,7 @@ const GameConfig: React.FC<GameConfigProps> = ({
                 胜利条件
               </label>
               <div className="grid grid-cols-1 gap-2">
-                {WIN_CONDITION_OPTIONS.map((option) => (
+                {WIN_CONDITION_OPTIONS.map(option => (
                   <label
                     key={option.value}
                     className={`relative flex items-center p-3 rounded-lg border cursor-pointer transition-colors ${
@@ -138,7 +138,7 @@ const GameConfig: React.FC<GameConfigProps> = ({
                 开局设定
               </label>
               <div className="grid grid-cols-1 gap-2">
-                {FIRST_PLAYER_OPTIONS.map((option) => (
+                {FIRST_PLAYER_OPTIONS.map(option => (
                   <label
                     key={option.value}
                     className={`relative flex items-center p-3 rounded-lg border cursor-pointer transition-colors ${

@@ -146,7 +146,7 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
       clearInterval(timerRef.current);
     }
     timerRef.current = setInterval(() => {
-      setGameTime((prev) => prev + 1);
+      setGameTime(prev => prev + 1);
     }, 1000);
   }, []);
 
@@ -224,16 +224,19 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
   );
 
   // 检查平局
-  const checkDraw = useCallback((board: GameBoard): boolean => {
-    for (let i = 0; i < BOARD_SIZE; i++) {
-      for (let j = 0; j < BOARD_SIZE; j++) {
-        if (board[i][j] === 0) {
-          return false; // 还有空位，不是平局
+  const checkDraw = useCallback(
+    (board: GameBoard): boolean => {
+      for (let i = 0; i < BOARD_SIZE; i++) {
+        for (let j = 0; j < BOARD_SIZE; j++) {
+          if (board[i][j] === 0) {
+            return false; // 还有空位，不是平局
+          }
         }
       }
-    }
-    return true; // 棋盘已满，平局
-  }, []);
+      return true; // 棋盘已满，平局
+    },
+    [BOARD_SIZE]
+  );
 
   // 落子
   const makeMove = useCallback(
@@ -242,12 +245,12 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
         return false;
       }
 
-      const newBoard = gameBoard.map((row) => [...row]) as GameBoard;
+      const newBoard = gameBoard.map(row => [...row]) as GameBoard;
       newBoard[row][col] = currentPlayer;
       setGameBoard(newBoard);
 
       const newMove = { row, col, player: currentPlayer };
-      setMoveHistory((prev) => [...prev, newMove]);
+      setMoveHistory(prev => [...prev, newMove]);
       setLastMove(newMove);
 
       // 播放落子音效
@@ -285,7 +288,18 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
       switchTimerPlayer(nextPlayer);
       return true;
     },
-    [gameBoard, currentPlayer, gameActive, checkWin, checkDraw, stopTimer]
+    [
+      gameBoard,
+      currentPlayer,
+      gameActive,
+      checkWin,
+      checkDraw,
+      stopTimer,
+      isTimeUp,
+      playMoveSound,
+      playWinSound,
+      switchTimerPlayer,
+    ]
   );
 
   // 应用配置
@@ -322,7 +336,7 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
       resetGameTimer();
       startGameTimer(config.firstPlayer);
     },
-    [startTimer, stopTimer]
+    [startTimer, stopTimer, resetGameTimer, startGameTimer]
   );
 
   // 悔棋
@@ -336,7 +350,7 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
 
     if (!lastMove) return;
 
-    const newBoard = gameBoard.map((row) => [...row]) as GameBoard;
+    const newBoard = gameBoard.map(row => [...row]) as GameBoard;
     newBoard[lastMove.row][lastMove.col] = 0;
 
     setGameBoard(newBoard);
@@ -345,7 +359,7 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
     setLastMove(
       newHistory.length > 0 ? newHistory[newHistory.length - 1] : null
     );
-  }, [moveHistory, gameBoard, gameActive]);
+  }, [moveHistory, gameBoard, gameActive, allowUndo]);
 
   // 重置游戏
   const resetGame = useCallback(() => {
@@ -368,7 +382,7 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
   // 在进入回顾模式时保存当前游戏状态
   useEffect(() => {
     if (reviewMode) {
-      setSavedGameBoard(gameBoard.map((row) => [...row]));
+      setSavedGameBoard(gameBoard.map(row => [...row]));
       setSavedCurrentPlayer(currentPlayer);
       setCurrentReviewMove(moveHistory.length);
     } else {
@@ -380,6 +394,7 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
       setSavedCurrentPlayer(null);
       setAutoPlayInterval(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reviewMode]);
 
   // 回顾模式下更新棋盘状态
@@ -396,14 +411,14 @@ export const useGomoku = (initialConfig?: GameConfig): UseGomokuReturn => {
       }
       setGameBoard(newBoard);
     }
-  }, [currentReviewMove, reviewMode]);
+  }, [currentReviewMove, reviewMode, BOARD_SIZE, moveHistory]);
 
   // 自动播放功能
   useEffect(() => {
     if (autoPlayInterval !== null && reviewMode) {
       const timer = setInterval(() => {
         if (currentReviewMove < moveHistory.length) {
-          setCurrentReviewMove((prev) => prev + 1);
+          setCurrentReviewMove(prev => prev + 1);
         } else {
           setAutoPlayInterval(null);
         }

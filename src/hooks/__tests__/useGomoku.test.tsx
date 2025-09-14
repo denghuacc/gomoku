@@ -80,7 +80,7 @@ describe("useGomoku", () => {
       result.current.makeMove(0, 0);
       result.current.resetGame();
     });
-    expect(result.current.gameBoard.flat().every((v) => v === 0)).toBe(true);
+    expect(result.current.gameBoard.flat().every(v => v === 0)).toBe(true);
     expect(result.current.moveHistory.length).toBe(0);
     expect(result.current.currentPlayer).toBe(1);
   });

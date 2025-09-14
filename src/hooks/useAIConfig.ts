@@ -59,13 +59,13 @@ export const useAIConfig = (): UseAIConfigReturn => {
 
   // 更新配置
   const updateConfig = useCallback((newConfig: Partial<AIConfig>) => {
-    setConfig((prev) => {
+    setConfig(prev => {
       const updated = { ...prev, ...newConfig };
 
       // 根据难度自动调整相关参数
       if (newConfig.difficulty) {
         const difficultyOption = AI_DIFFICULTY_OPTIONS.find(
-          (option) => option.value === newConfig.difficulty
+          option => option.value === newConfig.difficulty
         );
         if (difficultyOption) {
           updated.maxDepth = difficultyOption.maxDepth;
@@ -123,7 +123,7 @@ export const useAIConfig = (): UseAIConfigReturn => {
       thinkingStartTime.current = Date.now();
     } else {
       const thinkingTime = Date.now() - thinkingStartTime.current;
-      setState((prev) => ({
+      setState(prev => ({
         ...prev,
         isThinking: thinking,
         lastThinkingTime: thinkingTime,
@@ -131,7 +131,7 @@ export const useAIConfig = (): UseAIConfigReturn => {
       return;
     }
 
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       isThinking: thinking,
     }));
@@ -139,7 +139,7 @@ export const useAIConfig = (): UseAIConfigReturn => {
 
   // 设置最后的移动
   const setLastMove = useCallback((move: any) => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       currentMove: move,
     }));
@@ -147,7 +147,7 @@ export const useAIConfig = (): UseAIConfigReturn => {
 
   // 设置思考时间
   const setThinkingTime = useCallback((time: number) => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       lastThinkingTime: time,
     }));

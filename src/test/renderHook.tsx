@@ -1,6 +1,6 @@
-import React from 'react';
-import { createRoot, Root } from 'react-dom/client';
-import { act } from 'react-dom/test-utils';
+import React from "react";
+import { createRoot, Root } from "react-dom/client";
+import { act } from "react-dom/test-utils";
 
 export function renderHook<T>(hook: () => T) {
   const result: { current?: T } = {};
@@ -13,7 +13,7 @@ export function renderHook<T>(hook: () => T) {
     return null;
   }
 
-  const container = document.createElement('div');
+  const container = document.createElement("div");
   document.body.appendChild(container);
   const root: Root = createRoot(container);
   // ensure updates are flushed synchronously
@@ -30,7 +30,7 @@ export function renderHook<T>(hook: () => T) {
   };
 
   // register unmount globally so setup can cleanup between tests
-  const globalKey = '__renderHookUnmounts' as any;
+  const globalKey = "__renderHookUnmounts" as any;
   const g = globalThis as any;
   if (!g[globalKey]) g[globalKey] = [];
   g[globalKey].push(unmount);
