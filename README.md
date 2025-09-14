@@ -34,8 +34,8 @@ English | [中文](./README-zh.md)
 
 ### Requirements
 
-- Node.js >= 16.0.0
-- pnpm >= 7.0.0 (recommended) or npm/yarn
+- Node.js >= 22.0.0 (required for Vercel deployment)
+- pnpm >= 8.0.0 (recommended) or npm/yarn
 
 ### Installation
 
@@ -70,6 +70,91 @@ pnpm build
 
 # Preview build
 pnpm preview
+```
+
+## 🚀 GitHub Actions 自动部署
+
+本项目使用 GitHub Actions 自动部署到 Vercel，支持持续集成和持续部署 (CI/CD)。
+
+### 自动部署流程
+
+1. **持续集成 (CI)**：每次代码推送都会触发
+   - TypeScript 类型检查
+   - ESLint 代码规范检查
+   - 单元测试
+   - 构建验证
+
+2. **自动部署 (CD)**：
+   - **生产部署**：推送到 `main` 或 `master` 分支自动部署到生产环境
+   - **预览部署**：Pull Request 自动生成预览环境
+
+### 🔧 配置步骤
+
+#### 1. 设置本地环境变量
+
+复制 `.env.example` 为 `.env.local`：
+
+```bash
+cp .env.example .env.local
+```
+
+填入你的 Vercel 配置信息：
+
+```bash
+# .env.local
+VERCEL_TOKEN=your_vercel_token_here
+VERCEL_ORG_ID=your_org_id_here
+VERCEL_PROJECT_ID=your_project_id_here
+```
+
+#### 2. 配置 GitHub Secrets
+
+在 GitHub 仓库中配置以下 Secrets（仓库设置 → Secrets and variables → Actions）：
+
+| Secret 名称         | 获取方式                                             |
+| ------------------- | ---------------------------------------------------- |
+| `VERCEL_TOKEN`      | [Vercel 账户设置](https://vercel.com/account/tokens) |
+| `VERCEL_ORG_ID`     | Vercel 团队设置中获取                                |
+| `VERCEL_PROJECT_ID` | Vercel 项目设置中获取                                |
+
+📋 **详细配置指南**: 查看 [GitHub Secrets 配置文档](./docs/GITHUB_SECRETS.md)
+
+#### 3. 部署
+
+推送代码到主分支即可触发自动部署：
+
+```bash
+git add .
+git commit -m "Deploy to production"
+git push origin main
+```
+
+### 📊 部署状态监控
+
+- **GitHub Actions**: 仓库 → Actions 标签查看工作流程状态
+- **Vercel Dashboard**: [vercel.com](https://vercel.com) 查看部署详情
+- **部署预览**: PR 中会自动显示预览链接
+
+### 🔧 本地开发与测试
+
+```bash
+# 安装依赖
+pnpm install
+
+# 启动开发服务器
+pnpm dev
+
+# 类型检查
+pnpm type-check
+
+# 代码规范检查
+pnpm lint
+
+# 运行测试
+pnpm test
+
+# 构建生产版本
+pnpm build
 ```
 
 ## 📁 Project Structure

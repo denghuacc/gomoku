@@ -1,0 +1,67 @@
+# Dependencies
+
+node_modules/
+.pnpm-store/
+
+# Development files
+
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build artifacts
+
+dist/
+
+# Testing
+
+coverage/
+test/
+**/**tests**/
+**/_.test.ts
+\*\*/_.test.tsx
+jest.config.js
+vitest.config.ts
+
+# Development configuration
+
+.vscode/
+.idea/
+
+# Git
+
+.git/
+.github/
+
+# Logs
+
+\*.log
+logs/
+
+# OS
+
+.DS_Store
+Thumbs.db
+
+# Temporary files
+
+_.tmp
+_.temp
+
+# Documentation
+
+README\*.md
+OPTIMIZATION.md
+
+# Configuration files not needed for deployment
+
+tsconfig.test.json
+tsconfig.node.json
+eslint.config.js
+.eslintrc*
+.prettierrc*
+
+# Source maps (optional, comment out if you want source maps in production)
+
+# \*_/_.map

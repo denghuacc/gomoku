@@ -34,8 +34,8 @@
 
 ### 环境要求
 
-- Node.js >= 16.0.0
-- pnpm >= 7.0.0 (推荐) 或 npm/yarn
+- Node.js >= 22.0.0 (Vercel 部署要求)
+- pnpm >= 8.0.0 (推荐) 或 npm/yarn
 
 ### 安装依赖
 
