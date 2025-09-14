@@ -1,21 +1,11 @@
 {
   "version": 2,
   "name": "gomoku-react",
-  "functions": {
-    "app/api/**/*.js": {
-      "runtime": "nodejs22.x"
-    }
-  },
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist",
-        "nodejs": "22"
-      }
-    }
-  ],
+  "framework": "vite",
+  "buildCommand": "pnpm build",
+  "devCommand": "pnpm dev",
+  "installCommand": "pnpm install",
+  "outputDirectory": "dist",
   "routes": [
     {
       "src": "/assets/(.*)",
@@ -59,9 +49,5 @@
         }
       ]
     }
-  ],
-  "buildCommand": "pnpm build",
-  "devCommand": "pnpm dev",
-  "installCommand": "pnpm install",
-  "outputDirectory": "dist"
+  ]
 }
