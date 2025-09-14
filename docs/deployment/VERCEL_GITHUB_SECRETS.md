@@ -19,13 +19,13 @@
 ### 1. VERCEL_ORG_ID
 
 ```
-team_WeI2Q9kzedmdtjvCZsNLEqII
+[从 .vercel/project.json 文件中的 orgId 字段获取]
 ```
 
 ### 2. VERCEL_PROJECT_ID
 
 ```
-prj_vzhD2fVgXcDbr2v2qYkonlNl15Ba
+[从 .vercel/project.json 文件中的 projectId 字段获取]
 ```
 
 ### 3. VERCEL_TOKEN
@@ -54,11 +54,11 @@ prj_vzhD2fVgXcDbr2v2qYkonlNl15Ba
 
 2. **VERCEL_ORG_ID**
    - Name: `VERCEL_ORG_ID`
-   - Secret: `team_WeI2Q9kzedmdtjvCZsNLEqII`
+   - Secret: `[从 .vercel/project.json 中的 orgId 获取]`
 
 3. **VERCEL_PROJECT_ID**
    - Name: `VERCEL_PROJECT_ID`
-   - Secret: `prj_vzhD2fVgXcDbr2v2qYkonlNl15Ba`
+   - Secret: `[从 .vercel/project.json 中的 projectId 获取]`
 
 ### 步骤 3：验证配置
 
@@ -91,6 +91,8 @@ git push origin master
 2. **权限范围**: Token 应该只有项目部署权限
 3. **定期更新**: 建议定期轮换 API Token
 4. **监控部署**: 关注 GitHub Actions 和 Vercel 的部署日志
+5. **敏感信息保护**: ORG_ID 和 PROJECT_ID 虽然不如 TOKEN 敏感，但也应保密存储
+6. **本地配置**: `.vercel/` 目录已加入 `.gitignore`，确保本地配置不会被提交
 
 配置完成后，你的 Gomoku 项目将实现：
 
