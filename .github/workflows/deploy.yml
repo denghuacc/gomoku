@@ -22,7 +22,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -42,7 +41,7 @@ jobs:
         run: pnpm lint --max-warnings 10
 
       - name: Run tests
-        run: pnpm test run
+        run: pnpm test --run
 
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
