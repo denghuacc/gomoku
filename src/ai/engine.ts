@@ -1,5 +1,5 @@
-import { Player, GameBoard, Move } from "../hooks/useGomoku";
-import { AIConfig, EvaluationResult } from "./types";
+import { Player, GameBoard, Move } from '../hooks/useGomoku';
+import { AIConfig, EvaluationResult } from './types';
 
 /**
  * AI 引擎类
@@ -38,13 +38,13 @@ export class GomokuAI {
     try {
       // 根据难度选择不同的策略
       switch (this.config.difficulty) {
-        case "easy":
+        case 'easy':
           result = this.getEasyMove(board, currentPlayer);
           break;
-        case "medium":
+        case 'medium':
           result = this.getMediumMove(board, currentPlayer);
           break;
-        case "hard":
+        case 'hard':
           result = this.getHardMoveWithTimeout(board, currentPlayer);
           break;
         default:
@@ -52,7 +52,7 @@ export class GomokuAI {
           break;
       }
     } catch (error) {
-      console.error("[AI] 计算出错，使用备用策略:", error);
+      console.error('[AI] 计算出错，使用备用策略:', error);
       result = this.getBackupMove(board, currentPlayer);
     }
 
@@ -113,7 +113,7 @@ export class GomokuAI {
       const elapsedTime = Date.now() - startTime;
       console.log(`[AI Hard] 计算完成，耗时: ${elapsedTime}ms`);
       return move || this.getBackupMove(board, player);
-    } catch (error) {
+    } catch {
       console.warn(`[AI Hard] 计算超时或出错，使用备用方案`);
       return this.getBackupMove(board, player);
     }
@@ -139,15 +139,15 @@ export class GomokuAI {
 
     // 根据战术风格调整优先级
     switch (mode) {
-      case "offensive":
+      case 'offensive':
         // 进攻型：优先进攻，后考虑防守
         return this.getOffensiveMove(board, player, opponent, useDeepSearch);
 
-      case "defensive":
+      case 'defensive':
         // 防守型：优先防守，后考虑进攻
         return this.getDefensiveMove(board, player, opponent, useDeepSearch);
 
-      case "balanced":
+      case 'balanced':
       default:
         // 平衡型：平衡考虑攻守
         return this.getBalancedMove(board, player, opponent, useDeepSearch);
@@ -261,7 +261,7 @@ export class GomokuAI {
 
     for (const cell of emptyCells.slice(0, 10)) {
       // 只评估前10个位置
-      const newBoard = board.map((row) => [...row]);
+      const newBoard = board.map(row => [...row]);
       newBoard[cell.row][cell.col] = player;
       const score = this.evaluatePosition(newBoard, player);
       if (score > bestScore) {
@@ -554,7 +554,7 @@ export class GomokuAI {
     }
 
     // 快速评估所有位置并排序
-    const scoredMoves = emptyCells.map((cell) => {
+    const scoredMoves = emptyCells.map(cell => {
       const testBoard = this.copyBoard(board);
       testBoard[cell.row][cell.col] = player;
 
@@ -582,7 +582,7 @@ export class GomokuAI {
 
     // 按分数排序，取前N个
     scoredMoves.sort((a, b) => b.score - a.score);
-    return scoredMoves.slice(0, maxCandidates).map((item) => item.cell);
+    return scoredMoves.slice(0, maxCandidates).map(item => item.cell);
   }
 
   /**
@@ -595,7 +595,7 @@ export class GomokuAI {
   ): Move[] {
     const opponent = player === 1 ? 2 : 1;
 
-    const prioritized = moves.map((cell) => {
+    const prioritized = moves.map(cell => {
       let priority = 0;
 
       // 测试该位置
@@ -621,7 +621,7 @@ export class GomokuAI {
     });
 
     prioritized.sort((a, b) => b.priority - a.priority);
-    return prioritized.map((item) => item.cell);
+    return prioritized.map(item => item.cell);
   }
 
   /**
@@ -702,15 +702,15 @@ export class GomokuAI {
     const mode = this.config.evaluationMode;
 
     switch (mode) {
-      case "offensive":
+      case 'offensive':
         // 进攻型：优先自己的得分，进攻权重1.3倍，防守权重0.7倍
         return myScore * 1.3 - opponentScore * 0.7;
 
-      case "defensive":
+      case 'defensive':
         // 防守型：优先阻止对手，防守权重1.3倍，进攻权重0.7倍
         return myScore * 0.7 - opponentScore * 1.3;
 
-      case "balanced":
+      case 'balanced':
       default:
         // 平衡型：攻守权重相等
         return myScore - opponentScore;
@@ -957,20 +957,20 @@ export class GomokuAI {
     board: GameBoard,
     maxCount: number
   ): Move[] {
-    const scored = candidates.map((cell) => ({
+    const scored = candidates.map(cell => ({
       cell,
       score: this.getPositionValue(cell.row, cell.col, board),
     }));
 
     scored.sort((a, b) => b.score - a.score);
-    return scored.slice(0, maxCount).map((item) => item.cell);
+    return scored.slice(0, maxCount).map(item => item.cell);
   }
 
   /**
    * 复制棋盘
    */
   private copyBoard(board: GameBoard): GameBoard {
-    return board.map((row) => [...row]);
+    return board.map(row => [...row]);
   }
 
   /**
@@ -992,7 +992,7 @@ export class GomokuAI {
    * 模拟思考时间
    */
   private async simulateThinking(): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       setTimeout(resolve, this.config.thinkingTime);
     });
   }
