@@ -7,13 +7,19 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --fix",
+    "lint:staged": "eslint --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
     "test": "vitest",
     "test:unit": "vitest",
     "test:watch": "vitest --watch",
     "test:jest": "jest --config jest.config.js --passWithNoTests",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "vercel-build": "pnpm build",
+    "prepare": "husky"
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -28,6 +34,8 @@
     "@types/node": "^24.0.15",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
+    "@typescript-eslint/eslint-plugin": "^8.43.0",
+    "@typescript-eslint/parser": "^8.43.0",
     "@vitejs/plugin-react": "^4.2.1",
     "@vitest/coverage-istanbul": "3.2.4",
     "@vitest/ui": "^3.2.4",
@@ -36,14 +44,30 @@
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "husky": "^9.1.7",
     "jest": "^30.1.3",
     "jsdom": "^26.1.0",
     "jsdom-worker": "^0.3.0",
+    "lint-staged": "^16.1.6",
     "postcss": "^8.4.32",
+    "prettier": "^3.6.2",
     "tailwindcss": "^3.3.6",
     "ts-jest": "^29.4.1",
     "typescript": "^5.8.3",
     "vite": "^7.1.5",
     "vitest": "^3.2.4"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix --max-warnings 0",
+      "prettier --write"
+    ],
+    "*.{js,jsx}": [
+      "eslint --fix --max-warnings 0",
+      "prettier --write"
+    ],
+    "*.{json,css,md}": [
+      "prettier --write"
+    ]
   }
 }

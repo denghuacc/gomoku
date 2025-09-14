@@ -1,0 +1,34 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# 检查提交信息格式
+# 允许的格式: 
+# - feat: 新功能
+# - fix: 修复bug
+# - docs: 文档更新
+# - style: 样式更新
+# - refactor: 重构
+# - test: 测试
+# - chore: 构建/配置更新
+
+commit_regex='^(feat|fix|docs|style|refactor|test|chore|revert)(\(.+\))?: .{1,50}'
+
+error_msg="❌ 提交信息格式错误！
+请使用以下格式之一：
+  feat: 添加新功能
+  fix: 修复问题
+  docs: 更新文档
+  style: 代码样式修改
+  refactor: 重构代码
+  test: 添加测试
+  chore: 构建配置等杂项
+
+示例：
+  feat: 添加用户登录功能
+  fix: 修复游戏逻辑错误
+  docs: 更新API文档"
+
+if ! grep -qE "$commit_regex" "$1"; then
+    echo "$error_msg"
+    exit 1
+fi
