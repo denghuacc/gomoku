@@ -1,6 +1,10 @@
 # Pre-push 钩子：运行完整的检查
 echo "🚀 运行 pre-push 检查..."
 
+# 运行 TypeScript 类型检查
+echo "🔍 TypeScript 类型检查..."
+pnpm type-check
+
 # 运行完整的 ESLint 检查（允许少量警告）
 echo "🔍 完整 ESLint 检查..."
 pnpm lint
