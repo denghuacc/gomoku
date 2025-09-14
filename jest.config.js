@@ -10,4 +10,5 @@ module.exports = {
   ],
   collectCoverage: true,
   coverageReporters: ["text", "json", "html"],
+  setupFilesAfterEnv: ["<rootDir>/test/setupTests.ts"],
 };

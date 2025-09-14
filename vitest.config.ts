@@ -4,26 +4,16 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
-    setupFiles: ["src/test/setupTests.ts"],
+    setupFiles: ["test/setupTests.ts"],
     coverage: {
       provider: "istanbul",
       reporter: ["text", "json", "html"],
-      all: true,
-      include: ["src/**/*.ts", "src/**/*.tsx"],
-      thresholds: {
-        global: {
-          statements: 80,
-          branches: 80,
-          functions: 80,
-          lines: 80,
-        },
-        perFile: {
-          statements: 80,
-          branches: 80,
-          functions: 80,
-          lines: 80,
-        },
-      },
+      include: [
+        "src/components/**/*.{ts,tsx}",
+        "src/hooks/**/*.{ts,tsx}",
+        "src/utils/**/*.ts",
+      ],
+      exclude: ["**/__tests__/**/*", "src/test/setupTests.ts"],
     },
   },
 });

@@ -1,4 +1,9 @@
 import { useRef, useEffect, useState } from "react";
+import {
+  generateColumnLabels,
+  generateRowLabels,
+  getCellSizeUtil,
+} from "../utils/GameBoardUtils";
 import { GameBoard as GameBoardType, Player, Move } from "../hooks/useGomoku";
 
 interface GameBoardProps {
@@ -40,32 +45,12 @@ const GameBoard: React.FC<GameBoardProps> = ({
   const [previewPosition, setPreviewPosition] =
     useState<PreviewPosition | null>(null);
 
-  // 生成坐标标签 - 对应15根线
-  const generateColumnLabels = (): string[] => {
-    return Array.from(
-      { length: BOARD_SIZE },
-      (_, i) => String.fromCharCode(65 + i) // A, B, C, ..., O (15个字母)
-    );
-  };
-
-  const generateRowLabels = (): string[] => {
-    return Array.from(
-      { length: BOARD_SIZE },
-      (_, i) => (i + 1).toString() // 1, 2, 3, ..., 15 (15个数字)
-    );
-  };
-
-  // 计算Canvas尺寸 - 调整为原来的尺寸以保持布局
-  const getCellSize = (): number => {
-    const containerSize = Math.min(
-      window.innerWidth * 0.5,
-      window.innerHeight * 0.6
-    );
-    // 调整计算：让最终Canvas尺寸和之前15x14的尺寸相当
-    return containerSize / (BOARD_SIZE + 1); // 除以16而不是15，让棋盘稍微小一点
-  };
-
-  const CELL_SIZE = getCellSize();
+  // 使用外部工具函数
+  const CELL_SIZE = getCellSizeUtil(
+    BOARD_SIZE,
+    window.innerWidth,
+    window.innerHeight
+  );
   const PIECE_SIZE = CELL_SIZE * 0.85; // 稍微增大棋子相对尺寸，从0.8改为0.85
   // Canvas实际尺寸：需要为边缘棋子预留空间
   const CANVAS_SIZE = CELL_SIZE * BOARD_SIZE;
@@ -351,8 +336,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
     canvas.height = CANVAS_SIZE;
   }, [CANVAS_SIZE]);
 
-  const columnLabels = generateColumnLabels();
-  const rowLabels = generateRowLabels();
+  const columnLabels = generateColumnLabels(BOARD_SIZE);
+  const rowLabels = generateRowLabels(BOARD_SIZE);
 
   return (
     <div className="flex flex-col items-center">
@@ -360,7 +345,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       <div className="flex items-center mb-2">
         <div className="w-8"></div> {/* 左上角空白 */}
         <div className="flex" style={{ width: CANVAS_SIZE }}>
-          {columnLabels.map((label) => (
+          {columnLabels.map((label: string) => (
             <div
               key={label}
               className="flex items-center justify-center text-sm font-medium text-gray-600"
@@ -379,7 +364,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       <div className="flex items-center">
         {/* 左侧坐标标签 */}
         <div className="flex flex-col mr-2" style={{ height: CANVAS_SIZE }}>
-          {rowLabels.map((label) => (
+          {rowLabels.map((label: string) => (
             <div
               key={label}
               className="flex items-center justify-center text-sm font-medium text-gray-600"
@@ -414,7 +399,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
         {/* 右侧坐标标签 */}
         <div className="flex flex-col ml-2" style={{ height: CANVAS_SIZE }}>
-          {rowLabels.map((label) => (
+          {rowLabels.map((label: string) => (
             <div
               key={`right-${label}`}
               className="flex items-center justify-center text-sm font-medium text-gray-600"
@@ -433,7 +418,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       <div className="flex items-center mt-2">
         <div className="w-8"></div> {/* 左下角空白 */}
         <div className="flex" style={{ width: CANVAS_SIZE }}>
-          {columnLabels.map((label) => (
+          {columnLabels.map((label: string) => (
             <div
               key={`bottom-${label}`}
               className="flex items-center justify-center text-sm font-medium text-gray-600"

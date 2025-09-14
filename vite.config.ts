@@ -1,11 +1,14 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  server: {
-    port: 3000,
-    open: true,
+  test: {
+    globals: true, // Enable Jest globals like jest.fn()
+    environment: "jsdom", // Use jsdom for DOM-related tests
+    setupFiles: "./test/setupTests.ts", // Include setup file
+    coverage: {
+      provider: "v8", // Specify the coverage provider explicitly
+    },
   },
 });

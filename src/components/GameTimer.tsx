@@ -249,10 +249,14 @@ const GameTimer: React.FC<GameTimerProps> = ({
                   {(config.mode === "total_time" ||
                     config.mode === "fischer") && (
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="totalTimeInput"
+                        className="block text-xs font-medium text-gray-700 mb-1"
+                      >
                         总时间 (分钟)
                       </label>
                       <input
+                        id="totalTimeInput"
                         type="number"
                         min="1"
                         max="180"
@@ -269,10 +273,14 @@ const GameTimer: React.FC<GameTimerProps> = ({
 
                   {config.mode === "per_move" && (
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="moveTimeInput"
+                        className="block text-xs font-medium text-gray-700 mb-1"
+                      >
                         每步时间 (秒)
                       </label>
                       <input
+                        id="moveTimeInput"
                         type="number"
                         min="5"
                         max="300"
@@ -287,10 +295,14 @@ const GameTimer: React.FC<GameTimerProps> = ({
 
                   {config.mode === "fischer" && (
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="incrementInput"
+                        className="block text-xs font-medium text-gray-700 mb-1"
+                      >
                         增量时间 (秒)
                       </label>
                       <input
+                        id="incrementInput"
                         type="number"
                         min="0"
                         max="60"
